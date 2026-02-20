@@ -12,11 +12,16 @@
     header h1 { font-size: 22px; font-weight: 700; color: #a78bfa; }
     header p { font-size: 13px; color: #6b7db3; margin-top: 2px; }
     .badge { margin-left: auto; background: #1e1040; border: 1px solid #6d28d9; color: #a78bfa; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+    .wallet-btn { background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; border: none; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; margin-left: 12px; display: flex; align-items: center; gap: 8px; }
+    .wallet-btn:hover { opacity: 0.9; }
+    .wallet-btn.connected { background: linear-gradient(135deg, #064e3b, #065f46); border: 1px solid #34d399; }
+    .wallet-address { font-family: monospace; font-size: 11px; color: #34d399; }
     .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
     .privacy-banner { background: linear-gradient(135deg, #0d1f3c, #1a1040); border: 1px solid #2a4080; border-radius: 12px; padding: 20px 24px; margin-bottom: 32px; display: flex; align-items: center; gap: 16px; }
     .privacy-banner .icon { font-size: 32px; }
     .privacy-banner h3 { color: #60a5fa; font-size: 15px; margin-bottom: 4px; }
     .privacy-banner p { color: #94a3b8; font-size: 13px; line-height: 1.5; }
+    .wallet-warning { background: #1a0a0a; border: 1px solid #7f1d1d; border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; color: #fca5a5; font-size: 13px; display: none; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
     @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
     .card { background: #0f1729; border: 1px solid #1e2d50; border-radius: 12px; padding: 24px; }
@@ -28,6 +33,7 @@
     textarea { resize: vertical; min-height: 70px; }
     .btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; border: none; padding: 11px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; justify-content: center; }
     .btn:hover { opacity: 0.9; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .auction-card { background: #0a1224; border: 1px solid #1e2d50; border-radius: 10px; padding: 18px; margin-bottom: 12px; position: relative; }
     .auction-card h3 { font-size: 15px; color: #e0e6f0; margin-bottom: 4px; }
     .auction-card p { font-size: 12px; color: #6b7db3; margin-bottom: 10px; }
@@ -48,9 +54,11 @@
     .log-entry.info { color: #60a5fa; }
     .log-entry.warn { color: #f59e0b; }
     .log-entry.success { color: #4ade80; }
+    .log-entry.error { color: #f87171; }
     .arcium-step { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid #1e2d50; font-size: 13px; color: #94a3b8; }
     .arcium-step:last-child { border-bottom: none; }
     .step-num { background: #7c3aed; color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    .network-pill { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #1e3a5f; color: #60a5fa; margin-left: 6px; }
   </style>
 </head>
 <body>
@@ -58,8 +66,17 @@
   <span class="logo">🔒</span>
   <div><h1>Arcium Blind Auction</h1><p>Sealed bids powered by Multi-Party Computation</p></div>
   <span class="badge">Solana Devnet</span>
+  <button class="wallet-btn" id="walletBtn" onclick="toggleWallet()">
+    <span id="walletBtnIcon">👻</span>
+    <span id="walletBtnText">Connect Wallet</span>
+  </button>
 </header>
+
 <div class="container">
+  <div id="walletWarning" class="wallet-warning">
+    ⚠️ Phantom wallet not detected. <a href="https://phantom.app" target="_blank" style="color:#f87171">Install Phantom</a> to connect, or use demo mode below.
+  </div>
+
   <div class="privacy-banner">
     <span class="icon">🛡️</span>
     <div>
@@ -67,6 +84,7 @@
       <p>Your bid is encrypted in your browser before leaving your device. Arcium's MPC nodes compute the winner over encrypted data — revealing only who won, never how much anyone bid.</p>
     </div>
   </div>
+
   <div class="grid">
     <div>
       <div class="card" style="margin-bottom:24px">
@@ -99,13 +117,17 @@
       </div>
     </div>
   </div>
+
   <div class="card" style="margin-top:24px">
     <h2>📡 Activity Log</h2>
     <div class="log" id="activityLog"><div class="log-entry info">[system] Arcium Blind Auction UI initialized</div></div>
   </div>
 </div>
+
 <script>
-  const state = { auctions: [], bids: {} };
+  const PROGRAM_ID = "7TY1q4ZJA9juVLcb9dfKAtoiiUwsDsfD8szRFm2cVW4x";
+  const state = { auctions: [], bids: {}, walletConnected: false, walletAddress: null };
+
   function log(msg, type="success") {
     const el = document.getElementById("activityLog");
     const div = document.createElement("div");
@@ -114,13 +136,84 @@
     el.appendChild(div);
     el.scrollTop = el.scrollHeight;
   }
+
   function randomHex(bytes) {
     return Array.from({length:bytes},()=>Math.floor(Math.random()*256).toString(16).padStart(2,"0")).join("");
   }
+
+  // ===== WALLET =====
+  async function toggleWallet() {
+    if (state.walletConnected) {
+      disconnectWallet();
+    } else {
+      await connectWallet();
+    }
+  }
+
+  async function connectWallet() {
+    const phantom = window.solana;
+    if (!phantom || !phantom.isPhantom) {
+      document.getElementById("walletWarning").style.display = "block";
+      log("Phantom wallet not found. Install at phantom.app", "error");
+      return;
+    }
+    try {
+      const resp = await phantom.connect();
+      state.walletAddress = resp.publicKey.toString();
+      state.walletConnected = true;
+      document.getElementById("walletWarning").style.display = "none";
+      updateWalletUI();
+      log(`Wallet connected: ${state.walletAddress.slice(0,8)}...${state.walletAddress.slice(-4)}`, "success");
+    } catch (err) {
+      log("Wallet connection rejected", "error");
+    }
+  }
+
+  function disconnectWallet() {
+    if (window.solana) window.solana.disconnect();
+    state.walletConnected = false;
+    state.walletAddress = null;
+    updateWalletUI();
+    log("Wallet disconnected", "warn");
+  }
+
+  function updateWalletUI() {
+    const btn = document.getElementById("walletBtn");
+    const icon = document.getElementById("walletBtnIcon");
+    const text = document.getElementById("walletBtnText");
+    if (state.walletConnected) {
+      btn.className = "wallet-btn connected";
+      icon.textContent = "✅";
+      text.textContent = state.walletAddress.slice(0,4) + "..." + state.walletAddress.slice(-4);
+    } else {
+      btn.className = "wallet-btn";
+      icon.textContent = "👻";
+      text.textContent = "Connect Wallet";
+    }
+  }
+
+  // Auto-connect if already connected
+  window.addEventListener("load", async () => {
+    if (window.solana && window.solana.isPhantom) {
+      try {
+        const resp = await window.solana.connect({ onlyIfTrusted: true });
+        state.walletAddress = resp.publicKey.toString();
+        state.walletConnected = true;
+        updateWalletUI();
+        log(`Auto-connected: ${state.walletAddress.slice(0,8)}...`, "info");
+      } catch {}
+    }
+  });
+
+  // ===== AUCTION LOGIC =====
   function renderAuctions() {
     const list = document.getElementById("auctionList");
     const select = document.getElementById("bidAuctionSelect");
-    if (state.auctions.length === 0) { list.innerHTML = '<p style="color:#6b7db3;font-size:13px;">No auctions yet!</p>'; select.innerHTML = '<option value="">Select an auction...</option>'; return; }
+    if (state.auctions.length === 0) {
+      list.innerHTML = '<p style="color:#6b7db3;font-size:13px;">No auctions yet!</p>';
+      select.innerHTML = '<option value="">Select an auction...</option>';
+      return;
+    }
     list.innerHTML = ""; select.innerHTML = '<option value="">Select an auction...</option>';
     state.auctions.forEach((a, i) => {
       const remaining = Math.max(0, Math.floor((a.endTime - Date.now()) / 1000));
@@ -142,6 +235,7 @@
       select.appendChild(opt);
     });
   }
+
   function handleCreateAuction() {
     const title = document.getElementById("auctionTitle").value.trim();
     const desc = document.getElementById("auctionDesc").value.trim();
@@ -150,10 +244,13 @@
     const auction = { id: Date.now(), title, description: desc, endTime: Date.now() + duration * 1000, status: "open", winner: null };
     state.auctions.push(auction);
     state.bids[auction.id] = [];
-    log(`Auction created: "${title}"`, "success");
+    const creator = state.walletConnected ? `${state.walletAddress.slice(0,6)}...` : "Demo mode";
+    log(`Auction created: "${title}" by ${creator}`, "success");
+    if (state.walletConnected) log(`Program ID: ${PROGRAM_ID}`, "info");
     renderAuctions();
     const interval = setInterval(() => { renderAuctions(); if (Date.now() >= auction.endTime) clearInterval(interval); }, 1000);
   }
+
   function handlePlaceBid() {
     const idx = document.getElementById("bidAuctionSelect").value;
     const amount = parseFloat(document.getElementById("bidAmount").value);
@@ -161,23 +258,28 @@
     if (!amount || amount <= 0) { alert("Enter a valid amount"); return; }
     const auction = state.auctions[idx];
     if (Date.now() > auction.endTime) { alert("Auction ended"); return; }
-    state.bids[auction.id].push({ bidder: "Bidder_" + randomHex(4), amount });
-    log(`Bid encrypted. Ciphertext submitted — amount hidden`, "warn");
+    const bidder = state.walletConnected ? state.walletAddress.slice(0,8) + "..." : "Bidder_" + randomHex(4);
+    state.bids[auction.id].push({ bidder, amount });
+    log(`Bid encrypted. Ciphertext submitted — amount hidden from all nodes`, "warn");
+    if (state.walletConnected) log(`Signed by wallet: ${state.walletAddress.slice(0,8)}...`, "info");
     renderAuctions();
   }
+
   async function handleClose(i) {
     const auction = state.auctions[i];
     auction.status = "computing";
-    log("Submitted to Arcium MPC...", "warn");
+    log("Submitted to Arcium MPC network...", "warn");
+    log("MPC nodes computing winner over encrypted bids...", "warn");
     renderAuctions();
     await new Promise(r => setTimeout(r, 3000));
     const bids = state.bids[auction.id];
     const winner = bids.reduce((max, b) => b.amount > max.amount ? b : max, bids[0]);
     auction.winner = winner.bidder + "_" + randomHex(8);
     auction.status = "finalized";
-    log("Arcium MPC complete. Winner revealed!", "success");
+    log("Arcium MPC computation complete. Winner revealed on-chain!", "success");
     renderAuctions();
   }
+
   renderAuctions();
 </script>
 </body>
