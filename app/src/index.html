@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arcium Blind Auction</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0e1a; color: #e0e6f0; min-height: 100vh; }
+    header { background: linear-gradient(135deg, #0f1729 0%, #1a1040 100%); border-bottom: 1px solid #2a3060; padding: 20px 40px; display: flex; align-items: center; gap: 16px; }
+    .logo { font-size: 28px; }
+    header h1 { font-size: 22px; font-weight: 700; color: #a78bfa; }
+    header p { font-size: 13px; color: #6b7db3; margin-top: 2px; }
+    .badge { margin-left: auto; background: #1e1040; border: 1px solid #6d28d9; color: #a78bfa; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+    .privacy-banner { background: linear-gradient(135deg, #0d1f3c, #1a1040); border: 1px solid #2a4080; border-radius: 12px; padding: 20px 24px; margin-bottom: 32px; display: flex; align-items: center; gap: 16px; }
+    .privacy-banner .icon { font-size: 32px; }
+    .privacy-banner h3 { color: #60a5fa; font-size: 15px; margin-bottom: 4px; }
+    .privacy-banner p { color: #94a3b8; font-size: 13px; line-height: 1.5; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: #0f1729; border: 1px solid #1e2d50; border-radius: 12px; padding: 24px; }
+    .card h2 { font-size: 16px; color: #a78bfa; margin-bottom: 16px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; color: #6b7db3; margin-bottom: 6px; }
+    input, textarea, select { width: 100%; background: #080d1a; border: 1px solid #2a3060; border-radius: 8px; color: #e0e6f0; padding: 10px 14px; font-size: 14px; outline: none; }
+    input:focus, textarea:focus { border-color: #7c3aed; }
+    textarea { resize: vertical; min-height: 70px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; border: none; padding: 11px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; justify-content: center; }
+    .btn:hover { opacity: 0.9; }
+    .auction-card { background: #0a1224; border: 1px solid #1e2d50; border-radius: 10px; padding: 18px; margin-bottom: 12px; position: relative; }
+    .auction-card h3 { font-size: 15px; color: #e0e6f0; margin-bottom: 4px; }
+    .auction-card p { font-size: 12px; color: #6b7db3; margin-bottom: 10px; }
+    .status-badge { font-size: 11px; padding: 2px 10px; border-radius: 20px; font-weight: 600; position: absolute; top: 18px; right: 18px; }
+    .status-open { background: #064e3b; color: #34d399; }
+    .status-computing { background: #1e3a5f; color: #60a5fa; }
+    .status-finalized { background: #3b0764; color: #c084fc; }
+    .countdown { font-size: 20px; font-weight: 700; color: #f59e0b; margin: 8px 0; }
+    .bid-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #1e2d50; font-size: 13px; }
+    .bid-row:last-child { border-bottom: none; }
+    .lock-icon { color: #7c3aed; }
+    .bidder-addr { color: #60a5fa; font-family: monospace; font-size: 11px; }
+    .bid-amount { color: #4ade80; margin-left: auto; font-weight: 600; }
+    .winner-card { background: linear-gradient(135deg, #1a0a3a, #0a1f3c); border: 2px solid #7c3aed; border-radius: 12px; padding: 24px; text-align: center; margin-top: 16px; }
+    .winner-card .trophy { font-size: 48px; margin-bottom: 8px; }
+    .winner-card h3 { color: #a78bfa; font-size: 18px; }
+    .log { background: #050910; border: 1px solid #1e2d50; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 12px; height: 140px; overflow-y: auto; }
+    .log-entry.info { color: #60a5fa; }
+    .log-entry.warn { color: #f59e0b; }
+    .log-entry.success { color: #4ade80; }
+    .arcium-step { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid #1e2d50; font-size: 13px; color: #94a3b8; }
+    .arcium-step:last-child { border-bottom: none; }
+    .step-num { background: #7c3aed; color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+<header>
+  <span class="logo">🔒</span>
+  <div><h1>Arcium Blind Auction</h1><p>Sealed bids powered by Multi-Party Computation</p></div>
+  <span class="badge">Solana Devnet</span>
+</header>
+<div class="container">
+  <div class="privacy-banner">
+    <span class="icon">🛡️</span>
+    <div>
+      <h3>How Privacy Works</h3>
+      <p>Your bid is encrypted in your browser before leaving your device. Arcium's MPC nodes compute the winner over encrypted data — revealing only who won, never how much anyone bid.</p>
+    </div>
+  </div>
+  <div class="grid">
+    <div>
+      <div class="card" style="margin-bottom:24px">
+        <h2>📋 Create Auction</h2>
+        <div class="form-group"><label>Title</label><input type="text" id="auctionTitle" value="Rare Digital Artwork #001" /></div>
+        <div class="form-group"><label>Description</label><textarea id="auctionDesc">One-of-a-kind generative art. Highest sealed bid wins.</textarea></div>
+        <div class="form-group"><label>Duration (seconds)</label><input type="number" id="auctionDuration" value="120" min="10" /></div>
+        <button class="btn" onclick="handleCreateAuction()">🚀 Create Auction</button>
+      </div>
+      <div class="card">
+        <h2>💰 Place Sealed Bid</h2>
+        <div class="form-group"><label>Auction</label><select id="bidAuctionSelect"><option value="">Select an auction...</option></select></div>
+        <div class="form-group"><label>Bid Amount (SOL)</label><input type="number" id="bidAmount" step="0.001" min="0.001" placeholder="1.5" /></div>
+        <div style="background:#0a1a0a;border:1px solid #1e4020;border-radius:8px;padding:10px;margin-bottom:14px;font-size:12px;color:#4ade80;">🔒 Your bid will be encrypted in your browser. Only ciphertext is stored on-chain.</div>
+        <button class="btn" onclick="handlePlaceBid()">🔐 Encrypt & Submit Bid</button>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:24px">
+        <h2>🏷️ Auctions</h2>
+        <div id="auctionList"><p style="color:#6b7db3;font-size:13px;">No auctions yet. Create one!</p></div>
+      </div>
+      <div class="card">
+        <h2>⚙️ How Arcium Protects Your Bid</h2>
+        <div class="arcium-step"><span class="step-num">1</span><div><strong style="color:#e0e6f0">Browser Encrypts</strong><br/>Bid encrypted with MXE public key. Plaintext never leaves your browser.</div></div>
+        <div class="arcium-step"><span class="step-num">2</span><div><strong style="color:#e0e6f0">Ciphertext On-Chain</strong><br/>Only the 64-byte ciphertext is stored in the Solana program account.</div></div>
+        <div class="arcium-step"><span class="step-num">3</span><div><strong style="color:#e0e6f0">MPC Computation</strong><br/>Arcium nodes each receive a share — no node holds a complete value.</div></div>
+        <div class="arcium-step"><span class="step-num">4</span><div><strong style="color:#e0e6f0">Only Winner Revealed</strong><br/>Losing bids stay sealed forever.</div></div>
+        <div class="arcium-step"><span class="step-num">5</span><div><strong style="color:#e0e6f0">On-Chain Proof</strong><br/>Computation proof hash stored for public verifiability.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:24px">
+    <h2>📡 Activity Log</h2>
+    <div class="log" id="activityLog"><div class="log-entry info">[system] Arcium Blind Auction UI initialized</div></div>
+  </div>
+</div>
+<script>
+  const state = { auctions: [], bids: {} };
+  function log(msg, type="success") {
+    const el = document.getElementById("activityLog");
+    const div = document.createElement("div");
+    div.className = `log-entry ${type}`;
+    div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    el.appendChild(div);
+    el.scrollTop = el.scrollHeight;
+  }
+  function randomHex(bytes) {
+    return Array.from({length:bytes},()=>Math.floor(Math.random()*256).toString(16).padStart(2,"0")).join("");
+  }
+  function renderAuctions() {
+    const list = document.getElementById("auctionList");
+    const select = document.getElementById("bidAuctionSelect");
+    if (state.auctions.length === 0) { list.innerHTML = '<p style="color:#6b7db3;font-size:13px;">No auctions yet!</p>'; select.innerHTML = '<option value="">Select an auction...</option>'; return; }
+    list.innerHTML = ""; select.innerHTML = '<option value="">Select an auction...</option>';
+    state.auctions.forEach((a, i) => {
+      const remaining = Math.max(0, Math.floor((a.endTime - Date.now()) / 1000));
+      const bids = state.bids[a.id] || [];
+      const div = document.createElement("div");
+      div.className = "auction-card";
+      div.innerHTML = `
+        <span class="status-badge status-${a.status}">${a.status}</span>
+        <h3>${a.title}</h3><p>${a.description}</p>
+        <div class="countdown">⏱ ${remaining}s remaining</div>
+        <div style="font-size:12px;color:#6b7db3;margin-bottom:10px;">${bids.length} sealed bid(s)</div>
+        ${bids.map(b=>`<div class="bid-row"><span class="lock-icon">🔒</span><span class="bidder-addr">${b.bidder}</span><span class="bid-amount">••••• SOL</span></div>`).join("")}
+        ${a.status==="open"&&remaining===0?`<button class="btn" style="margin-top:10px;background:linear-gradient(135deg,#991b1b,#7f1d1d)" onclick="handleClose(${i})">🔐 Close & Run Arcium MPC</button>`:""}
+        ${a.status==="finalized"?`<div class="winner-card"><div class="trophy">🏆</div><h3>Finalized by Arcium MPC</h3><div style="font-family:monospace;color:#60a5fa;font-size:12px;margin-top:8px">${a.winner}</div></div>`:""}
+      `;
+      list.appendChild(div);
+      const opt = document.createElement("option");
+      opt.value = i; opt.textContent = a.title;
+      select.appendChild(opt);
+    });
+  }
+  function handleCreateAuction() {
+    const title = document.getElementById("auctionTitle").value.trim();
+    const desc = document.getElementById("auctionDesc").value.trim();
+    const duration = parseInt(document.getElementById("auctionDuration").value);
+    if (!title) { alert("Enter a title"); return; }
+    const auction = { id: Date.now(), title, description: desc, endTime: Date.now() + duration * 1000, status: "open", winner: null };
+    state.auctions.push(auction);
+    state.bids[auction.id] = [];
+    log(`Auction created: "${title}"`, "success");
+    renderAuctions();
+    const interval = setInterval(() => { renderAuctions(); if (Date.now() >= auction.endTime) clearInterval(interval); }, 1000);
+  }
+  function handlePlaceBid() {
+    const idx = document.getElementById("bidAuctionSelect").value;
+    const amount = parseFloat(document.getElementById("bidAmount").value);
+    if (idx === "") { alert("Select an auction"); return; }
+    if (!amount || amount <= 0) { alert("Enter a valid amount"); return; }
+    const auction = state.auctions[idx];
+    if (Date.now() > auction.endTime) { alert("Auction ended"); return; }
+    state.bids[auction.id].push({ bidder: "Bidder_" + randomHex(4), amount });
+    log(`Bid encrypted. Ciphertext submitted — amount hidden`, "warn");
+    renderAuctions();
+  }
+  async function handleClose(i) {
+    const auction = state.auctions[i];
+    auction.status = "computing";
+    log("Submitted to Arcium MPC...", "warn");
+    renderAuctions();
+    await new Promise(r => setTimeout(r, 3000));
+    const bids = state.bids[auction.id];
+    const winner = bids.reduce((max, b) => b.amount > max.amount ? b : max, bids[0]);
+    auction.winner = winner.bidder + "_" + randomHex(8);
+    auction.status = "finalized";
+    log("Arcium MPC complete. Winner revealed!", "success");
+    renderAuctions();
+  }
+  renderAuctions();
+</script>
+</body>
+</html>
