@@ -1,0 +1,12 @@
+[package]
+name = "encrypted-ixs"
+version = "0.1.0"
+edition = "2021"
+description = "Arcium MPC circuits for confidential bid comparison"
+
+[[bin]]
+name = "encrypted-ixs"
+path = "src/lib.rs"
+
+[dependencies]
+arcis-imports = "0.2"
