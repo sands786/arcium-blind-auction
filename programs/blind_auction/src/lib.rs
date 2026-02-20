@@ -5,7 +5,7 @@ use arcium_anchor::{
     ID as ARCIUM_ID,
 };
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("7TY1q4ZJA9juVLcb9dfKAtoiiUwsDsfD8szRFm2cVW4x");
 
 #[program]
 pub mod blind_auction {
