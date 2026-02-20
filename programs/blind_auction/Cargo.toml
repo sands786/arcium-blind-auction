@@ -1,0 +1,20 @@
+[package]
+name = "blind_auction"
+version = "0.1.0"
+description = "Blind Auction on Solana powered by Arcium confidential compute"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "blind_auction"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.29.0"
+arcium-anchor = { version = "0.2", features = ["cpi"] }
