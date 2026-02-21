@@ -4,1168 +4,597 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ARCIUM — Zero Knowledge War Protocol</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #050a14;
-    --bg2: #080f1e;
-    --surface: #0d1929;
-    --surface2: #112035;
-    --border: #1a3a5c;
-    --border-glow: #00d4ff;
-    --accent: #00d4ff;
-    --accent2: #0ff;
-    --gold: #ffd700;
-    --green: #00ff9d;
-    --red: #ff4466;
-    --purple: #9b59ff;
-    --text: #c8e0f8;
-    --text-dim: #5a7a9a;
-    --text-bright: #ffffff;
-    --glow: 0 0 20px rgba(0,212,255,0.4);
-    --glow-gold: 0 0 20px rgba(255,215,0,0.5);
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:'Rajdhani',sans-serif;
-    font-size:16px;
-    min-height:100vh;
-    overflow-x:hidden;
-  }
-  /* Animated grid background */
-  body::before{
-    content:'';
-    position:fixed;top:0;left:0;right:0;bottom:0;
-    background-image:
-      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
-    background-size:60px 60px;
-    pointer-events:none;z-index:0;
-    animation:gridScroll 20s linear infinite;
-  }
-  @keyframes gridScroll{to{background-position:60px 60px;}}
+:root{
+  --bg:#050a14;--bg2:#080f1e;--surface:#0d1929;--surface2:#112035;
+  --border:#1a3a5c;--accent:#00d4ff;--gold:#ffd700;--green:#00ff9d;
+  --red:#ff4466;--purple:#9b59ff;--text:#c8e0f8;--text-dim:#5a7a9a;--text-bright:#fff;
+  --glow:0 0 20px rgba(0,212,255,0.4);--glow-gold:0 0 20px rgba(255,215,0,0.5);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;animation:gridScroll 20s linear infinite;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:1;}
+@keyframes gridScroll{to{background-position:60px 60px;}}
+.wrapper{position:relative;z-index:2;}
 
-  /* Scanline overlay */
-  body::after{
-    content:'';
-    position:fixed;top:0;left:0;right:0;bottom:0;
-    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);
-    pointer-events:none;z-index:1;
-  }
+header{background:rgba(5,10,20,0.96);border-bottom:1px solid var(--border);padding:0 1.5rem;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);box-shadow:0 2px 40px rgba(0,212,255,0.1);}
+.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:68px;gap:1rem;}
+.logo{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:900;color:var(--accent);letter-spacing:5px;display:flex;align-items:center;gap:10px;text-shadow:var(--glow);}
+.logo-icon{width:34px;height:34px;border:2px solid var(--accent);transform:rotate(45deg);display:flex;align-items:center;justify-content:center;box-shadow:var(--glow);animation:logoPulse 2s ease-in-out infinite;flex-shrink:0;}
+.logo-icon::after{content:'⬥';transform:rotate(-45deg);font-size:13px;color:var(--accent);}
+@keyframes logoPulse{0%,100%{box-shadow:var(--glow);}50%{box-shadow:0 0 35px rgba(0,212,255,0.7);}}
+nav{display:flex;gap:2px;flex-wrap:wrap;}
+nav a{font-family:'Orbitron',monospace;font-size:0.62rem;font-weight:600;letter-spacing:2px;color:var(--text-dim);text-decoration:none;padding:7px 12px;border:1px solid transparent;transition:all 0.2s;cursor:pointer;text-transform:uppercase;border-radius:2px;}
+nav a:hover,nav a.active{color:var(--accent);border-color:var(--border);background:rgba(0,212,255,0.06);}
+.header-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.social-icon-btn{width:34px;height:34px;border:1px solid var(--border);background:transparent;color:var(--text-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;text-decoration:none;border-radius:2px;flex-shrink:0;}
+.social-icon-btn:hover{border-color:var(--accent);color:var(--accent);box-shadow:var(--glow);}
+.social-icon-btn.gh:hover{border-color:#aaa;color:#fff;}
+.connect-btn{font-family:'Orbitron',monospace;font-size:0.62rem;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,#00d4ff,#0099cc);color:#000;border:none;padding:9px 16px;cursor:pointer;transition:all 0.2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);white-space:nowrap;}
+.connect-btn:hover{filter:brightness(1.15);box-shadow:var(--glow);}
+.connect-btn.connected{background:linear-gradient(135deg,#00ff9d,#00cc77);}
+.connect-btn:disabled{opacity:0.6;cursor:not-allowed;}
 
-  .wrapper{position:relative;z-index:2;}
+.section{display:none;max-width:1400px;margin:0 auto;padding:2rem;}
+.section.active{display:block;}
 
-  /* ===== HEADER ===== */
-  header{
-    background:rgba(5,10,20,0.95);
-    border-bottom:1px solid var(--border);
-    padding:0 2rem;
-    position:sticky;top:0;z-index:100;
-    backdrop-filter:blur(20px);
-    box-shadow:0 2px 40px rgba(0,212,255,0.1);
-  }
-  .header-inner{
-    max-width:1400px;margin:0 auto;
-    display:flex;align-items:center;justify-content:space-between;
-    height:70px;
-  }
-  .logo{
-    font-family:'Orbitron',monospace;
-    font-size:1.4rem;font-weight:900;
-    color:var(--accent);
-    letter-spacing:6px;
-    text-shadow:var(--glow);
-    display:flex;align-items:center;gap:12px;
-  }
-  .logo-icon{
-    width:36px;height:36px;
-    border:2px solid var(--accent);
-    transform:rotate(45deg);
-    display:flex;align-items:center;justify-content:center;
-    position:relative;
-    box-shadow:var(--glow),inset 0 0 15px rgba(0,212,255,0.2);
-    animation:logoPulse 2s ease-in-out infinite;
-  }
-  .logo-icon::after{
-    content:'⬥';transform:rotate(-45deg);
-    font-size:14px;color:var(--accent);
-  }
-  @keyframes logoPulse{0%,100%{box-shadow:var(--glow),inset 0 0 15px rgba(0,212,255,0.2);}50%{box-shadow:0 0 35px rgba(0,212,255,0.7),inset 0 0 25px rgba(0,212,255,0.4);}}
+.hero{text-align:center;padding:4rem 1rem 2rem;}
+.hero-badge{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:0.68rem;letter-spacing:4px;color:var(--green);border:1px solid var(--green);padding:5px 16px;margin-bottom:2rem;background:rgba(0,255,157,0.05);animation:blink 3s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.6;}}
+.hero h1{font-family:'Orbitron',monospace;font-size:clamp(2.2rem,5.5vw,4.5rem);font-weight:900;line-height:1.1;color:var(--text-bright);text-shadow:0 0 60px rgba(0,212,255,0.4);margin-bottom:1rem;}
+.hero h1 span{color:transparent;-webkit-text-stroke:2px var(--accent);text-shadow:none;}
+.hero p{font-size:1.05rem;color:var(--text-dim);max-width:580px;margin:0 auto 2.5rem;line-height:1.8;}
+.hero-stats{display:flex;gap:1px;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem;}
+.stat-block{background:var(--surface);border:1px solid var(--border);padding:1.2rem 2rem;text-align:center;transition:all 0.3s;}
+.stat-block:hover{border-color:var(--accent);box-shadow:var(--glow);}
+.stat-val{font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:900;color:var(--accent);display:block;}
+.stat-lbl{font-size:0.63rem;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;}
 
-  nav{display:flex;gap:4px;}
-  nav a{
-    font-family:'Orbitron',monospace;
-    font-size:0.7rem;font-weight:600;
-    letter-spacing:2px;color:var(--text-dim);
-    text-decoration:none;
-    padding:8px 16px;border-radius:3px;
-    border:1px solid transparent;
-    transition:all 0.2s;cursor:pointer;
-    text-transform:uppercase;
-  }
-  nav a:hover,nav a.active{
-    color:var(--accent);
-    border-color:var(--border);
-    background:rgba(0,212,255,0.06);
-    text-shadow:var(--glow);
-  }
-  .connect-btn{
-    font-family:'Orbitron',monospace;
-    font-size:0.65rem;font-weight:700;
-    letter-spacing:2px;
-    background:linear-gradient(135deg,#00d4ff,#0099cc);
-    color:#000;border:none;
-    padding:10px 20px;border-radius:3px;
-    cursor:pointer;transition:all 0.2s;
-    clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
-  }
-  .connect-btn:hover{background:linear-gradient(135deg,#0ff,#00d4ff);box-shadow:var(--glow);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:1.5rem;position:relative;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity 0.3s;}
+.card:hover::before{opacity:1;}
+.card-title{font-family:'Orbitron',monospace;font-size:0.72rem;font-weight:700;letter-spacing:3px;color:var(--accent);margin-bottom:1.2rem;display:flex;align-items:center;gap:8px;}
+.card-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
 
-  /* ===== SECTIONS ===== */
-  .section{display:none;max-width:1400px;margin:0 auto;padding:2rem;}
-  .section.active{display:block;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+.grid-auto{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;}
+@media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr;}}
 
-  /* ===== HERO ===== */
-  .hero{
-    text-align:center;padding:5rem 2rem 3rem;
-    position:relative;
-  }
-  .hero-badge{
-    display:inline-block;
-    font-family:'Share Tech Mono',monospace;
-    font-size:0.7rem;letter-spacing:4px;
-    color:var(--green);
-    border:1px solid var(--green);
-    padding:5px 16px;margin-bottom:2rem;
-    background:rgba(0,255,157,0.05);
-    animation:blink 3s ease-in-out infinite;
-  }
-  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.6;}}
-  .hero h1{
-    font-family:'Orbitron',monospace;
-    font-size:clamp(2.5rem,6vw,5rem);
-    font-weight:900;line-height:1.1;
-    color:var(--text-bright);
-    text-shadow:0 0 60px rgba(0,212,255,0.5);
-    margin-bottom:1rem;
-  }
-  .hero h1 span{
-    color:transparent;
-    -webkit-text-stroke:2px var(--accent);
-    text-shadow:none;
-  }
-  .hero p{
-    font-size:1.1rem;color:var(--text-dim);
-    max-width:600px;margin:0 auto 3rem;
-    line-height:1.8;
-  }
-  .hero-stats{
-    display:flex;gap:1px;justify-content:center;flex-wrap:wrap;
-    margin-bottom:3rem;
-  }
-  .stat-block{
-    background:var(--surface);
-    border:1px solid var(--border);
-    padding:1.5rem 2.5rem;
-    text-align:center;
-    transition:all 0.3s;
-  }
-  .stat-block:hover{border-color:var(--accent);box-shadow:var(--glow);}
-  .stat-val{
-    font-family:'Orbitron',monospace;
-    font-size:2rem;font-weight:900;
-    color:var(--accent);display:block;
-  }
-  .stat-lbl{font-size:0.7rem;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;}
+.field{margin-bottom:1rem;}
+.field label{display:block;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:2px;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;}
+.field input,.field select,.field textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text-bright);font-family:'Rajdhani',sans-serif;font-size:1rem;padding:10px 14px;outline:none;transition:border-color 0.2s;appearance:none;border-radius:2px;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
+.field select option{background:var(--bg2);}
+.field textarea{resize:vertical;}
 
-  /* ===== CARDS ===== */
-  .card{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:2px;
-    padding:1.5rem;
-    position:relative;
-    overflow:hidden;
-    transition:border-color 0.3s,box-shadow 0.3s;
-  }
-  .card::before{
-    content:'';position:absolute;top:0;left:0;right:0;height:2px;
-    background:linear-gradient(90deg,transparent,var(--accent),transparent);
-    opacity:0;transition:opacity 0.3s;
-  }
-  .card:hover::before{opacity:1;}
-  .card:hover{border-color:rgba(0,212,255,0.3);box-shadow:0 4px 30px rgba(0,212,255,0.08);}
-  .card-title{
-    font-family:'Orbitron',monospace;
-    font-size:0.75rem;font-weight:700;
-    letter-spacing:3px;color:var(--accent);
-    margin-bottom:1.2rem;
-    display:flex;align-items:center;gap:8px;
-  }
-  .card-title::after{
-    content:'';flex:1;height:1px;
-    background:linear-gradient(90deg,var(--border),transparent);
-  }
+.btn{font-family:'Orbitron',monospace;font-size:0.66rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:11px 20px;border:none;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;border-radius:2px;text-decoration:none;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#0099cc);color:#000;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);}
+.btn-primary:hover{filter:brightness(1.2);box-shadow:var(--glow);transform:translateY(-1px);}
+.btn-secondary{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#cc9900);color:#000;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);}
+.btn-gold:hover{filter:brightness(1.15);box-shadow:var(--glow-gold);}
+.btn-tw{background:linear-gradient(135deg,#1da1f2,#0d7fc4);color:#fff;}
+.btn-tw:hover{filter:brightness(1.15);box-shadow:0 0 20px rgba(29,161,242,0.5);transform:translateY(-1px);}
+.btn-gh{background:linear-gradient(135deg,#24292e,#444c56);color:#fff;}
+.btn-gh:hover{filter:brightness(1.3);box-shadow:0 0 20px rgba(255,255,255,0.2);transform:translateY(-1px);}
+.btn-full{width:100%;justify-content:center;}
 
-  /* ===== GRID LAYOUTS ===== */
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
-  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
-  .grid-auto{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;}
-  @media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+.page-header{padding:2rem 0 1.5rem;border-bottom:1px solid var(--border);margin-bottom:2rem;}
+.page-title{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:var(--text-bright);letter-spacing:4px;}
+.page-subtitle{font-size:0.8rem;color:var(--text-dim);letter-spacing:2px;margin-top:4px;}
 
-  /* ===== FORM ELEMENTS ===== */
-  .field{margin-bottom:1rem;}
-  .field label{
-    display:block;
-    font-family:'Share Tech Mono',monospace;
-    font-size:0.7rem;letter-spacing:2px;color:var(--text-dim);
-    margin-bottom:6px;text-transform:uppercase;
-  }
-  .field input,.field select,.field textarea{
-    width:100%;background:var(--bg);
-    border:1px solid var(--border);
-    border-radius:2px;
-    color:var(--text-bright);
-    font-family:'Rajdhani',sans-serif;
-    font-size:1rem;padding:10px 14px;
-    outline:none;transition:border-color 0.2s,box-shadow 0.2s;
-    appearance:none;
-  }
-  .field input:focus,.field select:focus{
-    border-color:var(--accent);
-    box-shadow:0 0 0 2px rgba(0,212,255,0.1);
-  }
-  .field select option{background:var(--bg2);}
+.mission-badge{display:inline-flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:0.62rem;letter-spacing:2px;padding:4px 10px;border-radius:2px;}
+.badge-active{background:rgba(0,255,157,0.1);border:1px solid var(--green);color:var(--green);}
+.badge-ended{background:rgba(255,68,102,0.1);border:1px solid var(--red);color:var(--red);}
+.badge-pending{background:rgba(155,89,255,0.1);border:1px solid var(--purple);color:var(--purple);}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulseDot 1s ease-in-out infinite;flex-shrink:0;}
+@keyframes pulseDot{0%,100%{transform:scale(1);}50%{transform:scale(1.5);opacity:0.5;}}
 
-  .btn{
-    font-family:'Orbitron',monospace;
-    font-size:0.7rem;font-weight:700;
-    letter-spacing:2px;text-transform:uppercase;
-    padding:12px 24px;border:none;border-radius:2px;
-    cursor:pointer;transition:all 0.2s;
-    display:inline-flex;align-items:center;gap:8px;
-  }
-  .btn-primary{
-    background:linear-gradient(135deg,var(--accent),#006fa8);
-    color:#000;
-    clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
-  }
-  .btn-primary:hover{filter:brightness(1.2);box-shadow:var(--glow);transform:translateY(-1px);}
-  .btn-secondary{background:transparent;border:1px solid var(--border);color:var(--text);}
-  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
-  .btn-gold{
-    background:linear-gradient(135deg,var(--gold),#cc9900);
-    color:#000;
-    clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
-  }
-  .btn-gold:hover{filter:brightness(1.2);box-shadow:var(--glow-gold);}
-  .btn-danger{background:linear-gradient(135deg,#ff4466,#cc0033);color:#fff;}
-  .btn-full{width:100%;justify-content:center;}
+.chip{font-family:'Share Tech Mono',monospace;font-size:0.62rem;letter-spacing:1px;padding:3px 8px;border-radius:2px;display:inline-block;}
+.chip-green{background:rgba(0,255,157,0.1);border:1px solid var(--green);color:var(--green);}
+.chip-accent{background:rgba(0,212,255,0.1);border:1px solid var(--accent);color:var(--accent);}
+.chip-purple{background:rgba(155,89,255,0.1);border:1px solid var(--purple);color:var(--purple);}
 
-  /* ===== AUCTION PAGE ===== */
-  .page-header{
-    padding:2rem 0 1.5rem;
-    border-bottom:1px solid var(--border);
-    margin-bottom:2rem;
-  }
-  .page-title{
-    font-family:'Orbitron',monospace;
-    font-size:1.5rem;font-weight:900;
-    color:var(--text-bright);letter-spacing:4px;
-  }
-  .page-subtitle{font-size:0.85rem;color:var(--text-dim);letter-spacing:2px;margin-top:4px;}
+.comms{background:var(--bg);border:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:0.72rem;padding:1rem;max-height:190px;overflow-y:auto;border-radius:2px;}
+.comms::-webkit-scrollbar{width:4px;}.comms::-webkit-scrollbar-track{background:var(--bg2);}.comms::-webkit-scrollbar-thumb{background:var(--border);}
+.log-line{display:flex;gap:8px;line-height:1.9;}.log-time{color:var(--text-dim);flex-shrink:0;}
+.log-msg.info{color:var(--accent);}.log-msg.success{color:var(--green);}.log-msg.warn{color:var(--gold);}.log-msg.error{color:var(--red);}
 
-  /* Countdown */
-  .countdown{
-    font-family:'Orbitron',monospace;
-    font-size:2rem;font-weight:700;
-    color:var(--accent);text-shadow:var(--glow);
-    letter-spacing:4px;
-  }
-  .countdown.urgent{color:var(--red);text-shadow:0 0 20px rgba(255,68,102,0.5);animation:urgentPulse 0.5s ease-in-out infinite alternate;}
-  @keyframes urgentPulse{to{opacity:0.6;}}
+.demo-banner{background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.3);padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;border-radius:2px;transition:all 0.4s;}
+.demo-banner.ok{background:rgba(0,255,157,0.05);border-color:rgba(0,255,157,0.3);}
+.demo-banner p{font-size:0.85rem;color:var(--gold);line-height:1.5;flex:1;min-width:180px;transition:color 0.4s;}
+.demo-banner.ok p{color:var(--green);}
 
-  /* Mission badge */
-  .mission-badge{
-    display:inline-flex;align-items:center;gap:6px;
-    font-family:'Share Tech Mono',monospace;
-    font-size:0.65rem;letter-spacing:2px;
-    padding:4px 10px;border-radius:2px;
-  }
-  .badge-active{background:rgba(0,255,157,0.1);border:1px solid var(--green);color:var(--green);}
-  .badge-ended{background:rgba(255,68,102,0.1);border:1px solid var(--red);color:var(--red);}
-  .badge-pending{background:rgba(155,89,255,0.1);border:1px solid var(--purple);color:var(--purple);}
+.encrypt-flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:1rem;background:var(--bg);border:1px solid var(--border);}
+.ef-node{background:var(--surface2);border:1px solid var(--border);padding:8px 12px;text-align:center;white-space:nowrap;}
+.ef-node .label{color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:1px;}
+.ef-node .value{color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:0.63rem;margin-top:2px;}
+.ef-arrow{color:var(--border);font-size:1rem;}
 
-  .pulse-dot{
-    width:6px;height:6px;border-radius:50%;
-    background:currentColor;
-    animation:pulseDot 1s ease-in-out infinite;
-  }
-  @keyframes pulseDot{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.5);opacity:0.5;}}
+.threat-card{background:var(--surface);border:1px solid var(--border);padding:1.5rem;transition:all 0.3s;position:relative;overflow:hidden;border-radius:2px;}
+.threat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--accent));transform:scaleX(0);transition:transform 0.3s;}
+.threat-card:hover::after{transform:scaleX(1);}
+.threat-icon{font-size:2rem;margin-bottom:0.8rem;display:block;}
+.threat-title{font-family:'Orbitron',monospace;font-size:0.7rem;letter-spacing:2px;color:var(--text-bright);margin-bottom:0.8rem;}
+.threat-bad{color:var(--red);font-size:0.8rem;line-height:1.6;margin-bottom:0.5rem;}
+.threat-good{color:var(--green);font-size:0.8rem;line-height:1.6;}
 
-  /* ===== COMMS LOG ===== */
-  .comms{
-    background:var(--bg);
-    border:1px solid var(--border);
-    border-radius:2px;
-    font-family:'Share Tech Mono',monospace;
-    font-size:0.75rem;
-    padding:1rem;
-    max-height:200px;overflow-y:auto;
-    line-height:2;
-  }
-  .comms::-webkit-scrollbar{width:4px;}
-  .comms::-webkit-scrollbar-track{background:var(--bg2);}
-  .comms::-webkit-scrollbar-thumb{background:var(--border);}
-  .log-line{display:flex;gap:8px;}
-  .log-time{color:var(--text-dim);}
-  .log-msg.info{color:var(--accent);}
-  .log-msg.success{color:var(--green);}
-  .log-msg.warn{color:var(--gold);}
-  .log-msg.error{color:var(--red);}
+.game-card{background:var(--surface);border:1px solid var(--border);padding:2rem;text-align:center;transition:all 0.3s;cursor:pointer;position:relative;overflow:hidden;border-radius:2px;}
+.game-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(0,212,255,0.05),transparent 70%);opacity:0;transition:opacity 0.3s;}
+.game-card:hover::before{opacity:1;}
+.game-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 40px rgba(0,212,255,0.15);}
+.game-icon{font-size:3rem;margin-bottom:1rem;}
+.game-name{font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;letter-spacing:3px;color:var(--text-bright);margin-bottom:0.5rem;}
+.game-desc{font-size:0.82rem;color:var(--text-dim);line-height:1.5;}
+.game-cost{display:inline-flex;align-items:center;gap:4px;font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--gold);margin-top:1rem;border:1px solid rgba(255,215,0,0.3);padding:4px 10px;background:rgba(255,215,0,0.05);}
 
-  /* ===== ENCRYPTION VISUAL ===== */
-  .encrypt-flow{
-    display:flex;align-items:center;gap:8px;
-    flex-wrap:wrap;padding:1rem;
-    background:var(--bg);
-    border:1px solid var(--border);border-radius:2px;
-    font-family:'Share Tech Mono',monospace;font-size:0.65rem;
-    overflow-x:auto;
-  }
-  .ef-node{
-    background:var(--surface2);
-    border:1px solid var(--border);
-    padding:8px 12px;border-radius:2px;
-    text-align:center;white-space:nowrap;
-    flex-shrink:0;
-  }
-  .ef-node .label{color:var(--text-dim);font-size:0.6rem;letter-spacing:1px;}
-  .ef-node .value{color:var(--accent);font-size:0.7rem;margin-top:2px;}
-  .ef-arrow{color:var(--border);font-size:1rem;flex-shrink:0;}
+.ttt-board{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:330px;margin:0 auto;}
+.ttt-cell{aspect-ratio:1;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:2.2rem;font-weight:900;cursor:pointer;transition:all 0.15s;border-radius:2px;}
+.ttt-cell:hover:not(.taken){border-color:var(--accent);background:rgba(0,212,255,0.04);}
+.ttt-cell.x{color:var(--accent);text-shadow:var(--glow);}
+.ttt-cell.o{color:var(--gold);text-shadow:var(--glow-gold);}
+.ttt-cell.win{background:rgba(0,212,255,0.1);border-color:var(--accent);animation:winCell 0.5s ease-in-out;}
+@keyframes winCell{0%{transform:scale(1);}50%{transform:scale(1.06);}100%{transform:scale(1);}}
+.ttt-status{font-family:'Orbitron',monospace;font-size:0.82rem;font-weight:700;letter-spacing:3px;color:var(--accent);text-align:center;margin:1.5rem 0;min-height:2rem;}
+.ttt-score{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;}
+.score-box{background:var(--bg);border:1px solid var(--border);padding:0.8rem 1.8rem;text-align:center;}
+.score-box .sv{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:var(--accent);}
+.score-box .sl{font-size:0.62rem;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;}
 
-  /* ===== PROTOCOL STEPS ===== */
-  .protocol-steps{display:flex;flex-direction:column;gap:0;}
-  .proto-step{
-    display:flex;gap:1rem;align-items:flex-start;
-    padding:1rem;border-left:2px solid var(--border);
-    margin-left:18px;
-    transition:border-color 0.3s;
-  }
-  .proto-step:hover{border-color:var(--accent);}
-  .step-num{
-    font-family:'Orbitron',monospace;font-size:0.65rem;font-weight:900;
-    width:32px;height:32px;
-    background:var(--surface2);border:1px solid var(--border);
-    border-radius:50%;display:flex;align-items:center;justify-content:center;
-    flex-shrink:0;color:var(--accent);
-    margin-left:-18px;
-  }
-  .step-content h4{font-size:0.85rem;font-weight:700;color:var(--text-bright);margin-bottom:3px;}
-  .step-content p{font-size:0.8rem;color:var(--text-dim);line-height:1.6;}
+.quiz-container{max-width:800px;margin:0 auto;}
+.quiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;}
+.quiz-progress-bar{height:4px;background:var(--surface2);margin-bottom:2rem;overflow:hidden;}
+.quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));transition:width 0.5s ease;}
+.question-card{background:var(--surface);border:1px solid var(--border);padding:2rem;margin-bottom:1rem;animation:slideIn 0.3s ease;border-radius:2px;}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.question-num{font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:2px;color:var(--text-dim);margin-bottom:0.8rem;}
+.question-text{font-size:1.1rem;font-weight:600;color:var(--text-bright);line-height:1.6;margin-bottom:1.5rem;}
+.answer-options{display:flex;flex-direction:column;gap:8px;}
+.answer-opt{background:var(--bg);border:1px solid var(--border);padding:0.9rem 1.2rem;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:12px;font-size:0.95rem;color:var(--text);border-radius:2px;}
+.answer-opt:hover:not(.disabled){border-color:var(--accent);color:var(--text-bright);background:rgba(0,212,255,0.04);}
+.answer-opt.correct{border-color:var(--green);background:rgba(0,255,157,0.1);color:var(--green);}
+.answer-opt.wrong{border-color:var(--red);background:rgba(255,68,102,0.1);color:var(--red);}
+.answer-opt.disabled{cursor:default;}
+.opt-letter{font-family:'Orbitron',monospace;font-size:0.65rem;font-weight:700;width:26px;height:26px;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:2px;}
+.quiz-timer{font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:900;color:var(--accent);}
+.quiz-timer.low{color:var(--red);animation:urgentPulse 0.5s ease-in-out infinite alternate;}
+@keyframes urgentPulse{to{opacity:0.5;}}
 
-  /* ===== THREAT CARDS ===== */
-  .threat-card{
-    background:var(--surface);border:1px solid var(--border);
-    border-radius:2px;padding:1.5rem;
-    transition:all 0.3s;position:relative;
-    overflow:hidden;
-  }
-  .threat-card::after{
-    content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
-    background:linear-gradient(90deg,var(--green),var(--accent));
-    transform:scaleX(0);transition:transform 0.3s;
-  }
-  .threat-card:hover::after{transform:scaleX(1);}
-  .threat-icon{font-size:2rem;margin-bottom:0.8rem;display:block;}
-  .threat-title{font-family:'Orbitron',monospace;font-size:0.75rem;letter-spacing:2px;color:var(--text-bright);margin-bottom:0.8rem;}
-  .threat-bad{color:var(--red);font-size:0.8rem;line-height:1.6;margin-bottom:0.5rem;}
-  .threat-good{color:var(--green);font-size:0.8rem;line-height:1.6;}
+.results-card{background:var(--surface);border:2px solid var(--border);padding:3rem 2rem;text-align:center;animation:resultReveal 0.5s ease;border-radius:2px;}
+@keyframes resultReveal{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+.rank-badge{font-family:'Orbitron',monospace;font-size:0.9rem;font-weight:900;letter-spacing:4px;padding:11px 28px;display:inline-block;margin-bottom:1.5rem;clip-path:polygon(14px 0%,100% 0%,calc(100% - 14px) 100%,0% 100%);}
+.rank-LEGEND{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;}
+.rank-COMMANDER{background:linear-gradient(135deg,#c0c0c0,#808080);color:#000;}
+.rank-WARRIOR{background:linear-gradient(135deg,#cd7f32,#8b4513);color:#fff;}
+.rank-SOLDIER{background:linear-gradient(135deg,#00d4ff,#006fa8);color:#000;}
+.rank-RECRUIT{background:linear-gradient(135deg,#5a7a9a,#2d4a6a);color:#fff;}
+.result-score{font-family:'Orbitron',monospace;font-size:4rem;font-weight:900;color:var(--accent);line-height:1;margin-bottom:0.5rem;text-shadow:var(--glow);}
+.result-label{font-size:0.78rem;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;}
+.result-msg{font-size:1rem;color:var(--text);margin:1.5rem auto;line-height:1.7;max-width:500px;}
+.result-breakdown{display:flex;gap:1px;justify-content:center;margin:2rem 0;flex-wrap:wrap;}
+.rb-item{background:var(--bg);border:1px solid var(--border);padding:1rem 1.5rem;text-align:center;}
+.rb-val{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:700;}
+.rb-lbl{font-size:0.62rem;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-top:3px;}
+.rb-correct .rb-val{color:var(--green);}.rb-wrong .rb-val{color:var(--red);}.rb-skip .rb-val{color:var(--gold);}.rb-time .rb-val{color:var(--purple);}
 
-  /* ===== GAMES PAGE ===== */
-  .game-card{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:2px;padding:2rem;
-    text-align:center;
-    transition:all 0.3s;cursor:pointer;
-    position:relative;overflow:hidden;
-  }
-  .game-card::before{
-    content:'';position:absolute;inset:0;
-    background:radial-gradient(circle at center,rgba(0,212,255,0.05),transparent 70%);
-    opacity:0;transition:opacity 0.3s;
-  }
-  .game-card:hover::before{opacity:1;}
-  .game-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 40px rgba(0,212,255,0.15);}
-  .game-icon{font-size:3rem;margin-bottom:1rem;}
-  .game-name{font-family:'Orbitron',monospace;font-size:0.9rem;font-weight:700;letter-spacing:3px;color:var(--text-bright);margin-bottom:0.5rem;}
-  .game-desc{font-size:0.85rem;color:var(--text-dim);line-height:1.5;}
-  .game-cost{
-    display:inline-flex;align-items:center;gap:4px;
-    font-family:'Share Tech Mono',monospace;font-size:0.7rem;
-    color:var(--gold);margin-top:1rem;
-    border:1px solid rgba(255,215,0,0.3);padding:3px 10px;border-radius:2px;
-    background:rgba(255,215,0,0.05);
-  }
+.profile-header{display:flex;gap:2rem;align-items:center;padding:2rem;background:var(--surface);border:1px solid var(--border);margin-bottom:2rem;flex-wrap:wrap;border-radius:2px;}
+.profile-avatar{width:76px;height:76px;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:2.2rem;box-shadow:var(--glow);flex-shrink:0;background:var(--bg);}
+.profile-info h2{font-family:'Orbitron',monospace;font-size:1.15rem;font-weight:900;color:var(--text-bright);letter-spacing:3px;margin-bottom:3px;}
+.profile-info .handle{font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:var(--accent);}
+.profile-stats{display:flex;gap:0.8rem;margin-top:1rem;flex-wrap:wrap;}
+.p-stat{background:var(--bg);border:1px solid var(--border);padding:0.5rem 1rem;text-align:center;}
+.p-stat-val{font-family:'Orbitron',monospace;font-size:1.15rem;font-weight:700;color:var(--accent);}
+.p-stat-lbl{font-size:0.6rem;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;}
 
-  /* ===== TIC TAC TOE ===== */
-  #tttGame{display:none;}
-  .ttt-board{
-    display:grid;grid-template-columns:repeat(3,1fr);
-    gap:4px;max-width:360px;margin:0 auto;
-  }
-  .ttt-cell{
-    aspect-ratio:1;
-    background:var(--surface2);
-    border:1px solid var(--border);
-    border-radius:2px;
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Orbitron',monospace;font-size:2.5rem;font-weight:900;
-    cursor:pointer;transition:all 0.15s;
-    position:relative;overflow:hidden;
-  }
-  .ttt-cell::before{
-    content:'';position:absolute;inset:0;
-    background:radial-gradient(circle at center,rgba(0,212,255,0.1),transparent);
-    opacity:0;transition:opacity 0.2s;
-  }
-  .ttt-cell:hover:not(.taken)::before{opacity:1;}
-  .ttt-cell:hover:not(.taken){border-color:var(--border-glow);}
-  .ttt-cell.x{color:var(--accent);text-shadow:var(--glow);}
-  .ttt-cell.o{color:var(--gold);text-shadow:var(--glow-gold);}
-  .ttt-cell.win{background:rgba(0,212,255,0.1);border-color:var(--accent);animation:winCell 0.5s ease-in-out;}
-  @keyframes winCell{0%{transform:scale(1);}50%{transform:scale(1.05);}100%{transform:scale(1);}}
-  .ttt-status{
-    font-family:'Orbitron',monospace;font-size:0.9rem;font-weight:700;
-    letter-spacing:3px;color:var(--accent);text-align:center;
-    margin:1.5rem 0;min-height:2rem;
-  }
-  .ttt-score{
-    display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;
-    margin-bottom:1.5rem;
-  }
-  .score-box{
-    background:var(--bg);border:1px solid var(--border);
-    padding:0.8rem 2rem;text-align:center;border-radius:2px;
-  }
-  .score-box .sv{
-    font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:900;
-    color:var(--accent);
-  }
-  .score-box .sl{font-size:0.65rem;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;}
+.social-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:1.2rem;}
+.sl-tw{background:linear-gradient(135deg,#1da1f2,#0d7fc4);color:#fff !important;}
+.sl-tw:hover{filter:brightness(1.15);box-shadow:0 0 20px rgba(29,161,242,0.5);}
+.sl-gh{background:linear-gradient(135deg,#24292e,#444c56);color:#fff !important;}
+.sl-gh:hover{filter:brightness(1.3);box-shadow:0 0 20px rgba(255,255,255,0.15);}
 
-  /* ===== QUIZ PAGE ===== */
-  .quiz-container{max-width:800px;margin:0 auto;}
-  .quiz-header{
-    display:flex;align-items:center;justify-content:space-between;
-    margin-bottom:2rem;flex-wrap:wrap;gap:1rem;
-  }
-  .quiz-progress-bar{
-    height:4px;background:var(--surface2);
-    border-radius:0;margin-bottom:2rem;overflow:hidden;
-  }
-  .quiz-progress-fill{
-    height:100%;background:linear-gradient(90deg,var(--accent),var(--green));
-    transition:width 0.5s ease;border-radius:0;
-  }
-  .question-card{
-    background:var(--surface);border:1px solid var(--border);
-    border-radius:2px;padding:2rem;margin-bottom:1rem;
-    animation:slideIn 0.3s ease;
-  }
-  @keyframes slideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-  .question-num{
-    font-family:'Share Tech Mono',monospace;font-size:0.7rem;
-    letter-spacing:2px;color:var(--text-dim);margin-bottom:0.8rem;
-  }
-  .question-text{
-    font-size:1.15rem;font-weight:600;color:var(--text-bright);
-    line-height:1.6;margin-bottom:1.5rem;
-  }
-  .answer-options{display:flex;flex-direction:column;gap:8px;}
-  .answer-opt{
-    background:var(--bg);border:1px solid var(--border);
-    border-radius:2px;padding:1rem 1.2rem;
-    cursor:pointer;transition:all 0.15s;
-    display:flex;align-items:center;gap:12px;
-    font-size:0.95rem;color:var(--text);
-  }
-  .answer-opt:hover:not(.selected):not(.disabled){
-    border-color:var(--accent);color:var(--text-bright);
-    background:rgba(0,212,255,0.04);
-  }
-  .answer-opt.selected{border-color:var(--accent);background:rgba(0,212,255,0.08);color:var(--text-bright);}
-  .answer-opt.correct{border-color:var(--green);background:rgba(0,255,157,0.1);color:var(--green);}
-  .answer-opt.wrong{border-color:var(--red);background:rgba(255,68,102,0.1);color:var(--red);}
-  .opt-letter{
-    font-family:'Orbitron',monospace;font-size:0.7rem;font-weight:700;
-    width:26px;height:26px;
-    border:1px solid currentColor;border-radius:2px;
-    display:flex;align-items:center;justify-content:center;
-    flex-shrink:0;
-  }
-  .quiz-timer{
-    font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:900;
-    color:var(--accent);
-  }
-  .quiz-timer.low{color:var(--red);animation:urgentPulse 0.5s ease-in-out infinite alternate;}
+.node-diagram{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;padding:1.5rem;}
+.nd-item{background:var(--surface2);border:1px solid var(--border);padding:1rem;text-align:center;min-width:85px;font-family:'Share Tech Mono',monospace;font-size:0.62rem;transition:all 0.3s;}
+.nd-item:hover{border-color:var(--accent);}
+.nd-icon{font-size:1.5rem;margin-bottom:4px;}
+.nd-label{color:var(--text-dim);line-height:1.4;}
+.nd-arrow{color:var(--border);font-size:1rem;padding:0 3px;}
 
-  /* Results */
-  .results-card{
-    background:var(--surface);border:2px solid var(--border);
-    border-radius:2px;padding:3rem 2rem;text-align:center;
-    position:relative;overflow:hidden;
-    animation:resultReveal 0.5s ease;
-  }
-  @keyframes resultReveal{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
-  .rank-badge{
-    font-family:'Orbitron',monospace;
-    font-size:1rem;font-weight:900;letter-spacing:4px;
-    padding:12px 32px;border-radius:2px;
-    display:inline-block;margin-bottom:1.5rem;
-    clip-path:polygon(15px 0%,100% 0%,calc(100% - 15px) 100%,0% 100%);
-  }
-  .rank-LEGEND{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;}
-  .rank-COMMANDER{background:linear-gradient(135deg,#c0c0c0,#808080);color:#000;}
-  .rank-WARRIOR{background:linear-gradient(135deg,#cd7f32,#8b4513);color:#fff;}
-  .rank-SOLDIER{background:linear-gradient(135deg,#00d4ff,#006fa8);color:#000;}
-  .rank-RECRUIT{background:linear-gradient(135deg,#5a7a9a,#2d4a6a);color:#fff;}
-  .result-score{
-    font-family:'Orbitron',monospace;font-size:4rem;font-weight:900;
-    color:var(--accent);line-height:1;margin-bottom:0.5rem;
-    text-shadow:var(--glow);
-  }
-  .result-label{font-size:0.8rem;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;}
-  .result-msg{font-size:1rem;color:var(--text);margin:1.5rem 0;line-height:1.7;max-width:500px;margin-left:auto;margin-right:auto;}
-  .result-breakdown{
-    display:flex;gap:1px;justify-content:center;margin:2rem 0;flex-wrap:wrap;
-  }
-  .rb-item{
-    background:var(--bg);border:1px solid var(--border);
-    padding:1rem 1.5rem;text-align:center;
-  }
-  .rb-val{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:700;}
-  .rb-lbl{font-size:0.65rem;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-top:3px;}
-  .rb-item.rb-correct .rb-val{color:var(--green);}
-  .rb-item.rb-wrong .rb-val{color:var(--red);}
-  .rb-item.rb-skip .rb-val{color:var(--gold);}
-  .rb-item.rb-time .rb-val{color:var(--purple);}
+.tag-cloud{display:flex;flex-wrap:wrap;gap:6px;margin-top:0.8rem;}
+.tech-tag{font-family:'Share Tech Mono',monospace;font-size:0.62rem;padding:4px 10px;background:var(--bg);border:1px solid var(--border);color:var(--text-dim);transition:all 0.2s;}
+.tech-tag:hover{border-color:var(--accent);color:var(--accent);}
 
-  /* ===== PROFILE ===== */
-  .profile-header{
-    display:flex;gap:2rem;align-items:center;
-    padding:2rem;background:var(--surface);border:1px solid var(--border);
-    margin-bottom:2rem;flex-wrap:wrap;
-  }
-  .profile-avatar{
-    width:80px;height:80px;
-    border:2px solid var(--accent);
-    display:flex;align-items:center;justify-content:center;
-    font-size:2.5rem;
-    box-shadow:var(--glow);
-    flex-shrink:0;
-    background:var(--bg);
-  }
-  .profile-info h2{
-    font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:900;
-    color:var(--text-bright);letter-spacing:3px;margin-bottom:4px;
-  }
-  .profile-info .handle{font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:var(--accent);}
-  .profile-stats{display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap;}
-  .p-stat{
-    background:var(--bg);border:1px solid var(--border);
-    padding:0.5rem 1rem;text-align:center;
-  }
-  .p-stat-val{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:700;color:var(--accent);}
-  .p-stat-lbl{font-size:0.6rem;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;}
+.proto-step{display:flex;gap:1rem;align-items:flex-start;padding:1rem;border-left:2px solid var(--border);margin-left:18px;transition:border-color 0.3s;}
+.proto-step:hover{border-color:var(--accent);}
+.step-num{font-family:'Orbitron',monospace;font-size:0.62rem;font-weight:900;width:32px;height:32px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);margin-left:-18px;}
+.step-content h4{font-size:0.85rem;font-weight:700;color:var(--text-bright);margin-bottom:3px;}
+.step-content p{font-size:0.8rem;color:var(--text-dim);line-height:1.6;}
 
-  /* ===== SOL DEMO NOTICE ===== */
-  .demo-banner{
-    background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.3);
-    border-radius:2px;padding:1rem 1.5rem;
-    display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;
-    flex-wrap:wrap;
-  }
-  .demo-banner .di{font-size:1.2rem;}
-  .demo-banner p{font-size:0.85rem;color:var(--gold);line-height:1.5;flex:1;}
+/* WALLET MODAL */
+.w-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.w-modal.open{display:flex;}
+.w-box{background:var(--bg2);border:1px solid var(--border);max-width:440px;width:92%;padding:2rem;animation:modalIn 0.3s ease;position:relative;border-radius:2px;}
+@keyframes modalIn{from{opacity:0;transform:scale(0.94);}to{opacity:1;transform:scale(1);}}
+.w-box-title{font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;letter-spacing:3px;color:var(--text-bright);margin-bottom:1.5rem;}
+.w-option{background:var(--surface);border:1px solid var(--border);padding:1.2rem;display:flex;align-items:center;gap:1rem;cursor:pointer;transition:all 0.2s;margin-bottom:8px;border-radius:2px;}
+.w-option:hover{border-color:var(--accent);background:rgba(0,212,255,0.05);}
+.w-icon{font-size:2rem;flex-shrink:0;}
+.w-info h4{font-size:0.9rem;font-weight:700;color:var(--text-bright);}
+.w-info p{font-size:0.75rem;color:var(--text-dim);margin-top:2px;}
+.w-close{position:absolute;top:1rem;right:1rem;background:none;border:1px solid var(--border);color:var(--text-dim);width:30px;height:30px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;border-radius:2px;transition:all 0.2s;}
+.w-close:hover{border-color:var(--red);color:var(--red);}
 
-  /* Toast */
-  .toast-container{position:fixed;top:80px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:8px;}
-  .toast{
-    background:var(--surface2);border:1px solid var(--border);
-    padding:12px 16px;border-radius:2px;
-    font-family:'Share Tech Mono',monospace;font-size:0.75rem;
-    max-width:300px;animation:toastIn 0.3s ease;
-    display:flex;align-items:center;gap:8px;
-  }
-  .toast.success{border-color:var(--green);color:var(--green);}
-  .toast.error{border-color:var(--red);color:var(--red);}
-  .toast.info{border-color:var(--accent);color:var(--accent);}
-  @keyframes toastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+/* TOAST */
+.toast-c{position:fixed;top:78px;right:16px;z-index:1000;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--surface2);border:1px solid var(--border);padding:10px 14px;font-family:'Share Tech Mono',monospace;font-size:0.72rem;max-width:300px;animation:toastIn 0.3s ease;display:flex;align-items:center;gap:8px;border-radius:2px;}
+.toast.success{border-color:var(--green);color:var(--green);}.toast.error{border-color:var(--red);color:var(--red);}.toast.info{border-color:var(--accent);color:var(--accent);}.toast.warn{border-color:var(--gold);color:var(--gold);}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
 
-  /* Divider */
-  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:2rem 0;}
-
-  /* Scrollbar */
-  ::-webkit-scrollbar{width:6px;height:6px;}
-  ::-webkit-scrollbar-track{background:var(--bg);}
-  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:0;}
-
-  /* Chip */
-  .chip{
-    font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:1px;
-    padding:3px 8px;border-radius:2px;display:inline-block;
-  }
-  .chip-green{background:rgba(0,255,157,0.1);border:1px solid var(--green);color:var(--green);}
-  .chip-accent{background:rgba(0,212,255,0.1);border:1px solid var(--accent);color:var(--accent);}
-  .chip-purple{background:rgba(155,89,255,0.1);border:1px solid var(--purple);color:var(--purple);}
-
-  /* Responsive nav */
-  @media(max-width:600px){
-    nav{flex-wrap:wrap;gap:2px;}
-    nav a{font-size:0.6rem;padding:6px 10px;}
-    .logo-text{display:none;}
-  }
-
-  .node-diagram{
-    display:flex;align-items:center;justify-content:center;gap:0;
-    flex-wrap:wrap;padding:1.5rem;
-  }
-  .nd-item{
-    background:var(--surface2);border:1px solid var(--border);
-    padding:1rem;text-align:center;min-width:100px;
-    font-family:'Share Tech Mono',monospace;font-size:0.65rem;
-    transition:all 0.3s;
-  }
-  .nd-item:hover{border-color:var(--accent);}
-  .nd-item .nd-icon{font-size:1.8rem;margin-bottom:4px;}
-  .nd-item .nd-label{color:var(--text-dim);}
-  .nd-arrow{color:var(--border);font-size:1.2rem;padding:0 4px;}
-
-  .tag-cloud{display:flex;flex-wrap:wrap;gap:6px;margin-top:0.8rem;}
-  .tech-tag{
-    font-family:'Share Tech Mono',monospace;font-size:0.65rem;
-    padding:4px 10px;border-radius:2px;
-    background:var(--bg);border:1px solid var(--border);color:var(--text-dim);
-    transition:all 0.2s;
-  }
-  .tech-tag:hover{border-color:var(--accent);color:var(--accent);}
-
-  /* Game selector */
-  .game-modal{
-    display:none;position:fixed;inset:0;
-    background:rgba(0,0,0,0.85);z-index:200;
-    align-items:center;justify-content:center;
-    backdrop-filter:blur(5px);
-  }
-  .game-modal.open{display:flex;}
-  .modal-box{
-    background:var(--bg2);border:1px solid var(--border);
-    border-radius:2px;max-width:600px;width:90%;
-    max-height:90vh;overflow-y:auto;
-    padding:2rem;animation:modalIn 0.3s ease;
-    position:relative;
-  }
-  @keyframes modalIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
-  .modal-close{
-    position:absolute;top:1rem;right:1rem;
-    background:none;border:1px solid var(--border);
-    color:var(--text-dim);width:32px;height:32px;
-    cursor:pointer;font-size:1.2rem;
-    display:flex;align-items:center;justify-content:center;
-    border-radius:2px;transition:all 0.2s;
-  }
-  .modal-close:hover{border-color:var(--red);color:var(--red);}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:2rem 0;}
+::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);}
 </style>
 </head>
 <body>
 <div class="wrapper">
 
-<!-- TOAST CONTAINER -->
-<div class="toast-container" id="toastContainer"></div>
+<!-- TOASTS -->
+<div class="toast-c" id="toastC"></div>
+
+<!-- WALLET MODAL -->
+<div class="w-modal" id="wModal">
+  <div class="w-box">
+    <button class="w-close" onclick="closeModal()">✕</button>
+    <div class="w-box-title">🔐 CONNECT WALLET</div>
+    <div class="w-option" id="phantomOpt" onclick="connectPhantom()">
+      <div class="w-icon">👻</div>
+      <div class="w-info">
+        <h4>Phantom</h4>
+        <p id="phantomStatus">Checking...</p>
+      </div>
+      <span style="margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--accent);">→</span>
+    </div>
+    <div style="margin-top:1rem;padding:1rem;background:var(--bg);border:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--text-dim);border-radius:2px;line-height:1.8;">
+      <span style="color:var(--gold);">⚠ SOLANA DEVNET ONLY</span><br>
+      No Phantom? <a href="https://phantom.com" target="_blank" style="color:var(--accent);">phantom.com</a>&nbsp;&nbsp;·&nbsp;&nbsp;
+      Need SOL? <a href="https://faucet.solana.com" target="_blank" style="color:var(--accent);">faucet.solana.com</a>
+    </div>
+  </div>
+</div>
 
 <!-- HEADER -->
 <header>
   <div class="header-inner">
     <div class="logo">
       <div class="logo-icon"></div>
-      <span class="logo-text">ARCIUM</span>
+      <span>ARCIUM</span>
     </div>
     <nav>
-      <a onclick="showSection('home')" class="active" id="nav-home">HOME</a>
-      <a onclick="showSection('auction')" id="nav-auction">AUCTION</a>
-      <a onclick="showSection('games')" id="nav-games">ARCADE</a>
-      <a onclick="showSection('quiz')" id="nav-quiz">INTEL QUIZ</a>
-      <a onclick="showSection('intel')" id="nav-intel">SHIELD</a>
-      <a onclick="showSection('profile')" id="nav-profile">OPERATIVE</a>
+      <a onclick="go('home')" class="active" id="nav-home">HOME</a>
+      <a onclick="go('auction')" id="nav-auction">AUCTION</a>
+      <a onclick="go('games')" id="nav-games">ARCADE</a>
+      <a onclick="go('quiz')" id="nav-quiz">QUIZ</a>
+      <a onclick="go('intel')" id="nav-intel">SHIELD</a>
+      <a onclick="go('profile')" id="nav-profile">PROFILE</a>
     </nav>
-    <button class="connect-btn" onclick="connectWallet()">◈ CONNECT WALLET</button>
+    <div class="header-right">
+      <!-- Twitter -->
+      <a href="https://twitter.com/husnain50376345" target="_blank" class="social-icon-btn" title="@husnain50376345 on X / Twitter">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.629L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <!-- GitHub -->
+      <a href="https://github.com/sands786" target="_blank" class="social-icon-btn gh" title="github.com/sands786">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      </a>
+      <button class="connect-btn" id="connectBtn" onclick="openModal()">◈ CONNECT WALLET</button>
+    </div>
   </div>
 </header>
 
-<!-- ============================================================ -->
-<!-- HOME -->
-<!-- ============================================================ -->
+<!-- ============================================================ HOME -->
 <div id="section-home" class="section active">
-  <div style="max-width:1400px;margin:0 auto;padding:2rem;">
-    <!-- Hero -->
-    <div class="hero" style="padding:4rem 1rem 2rem;">
-      <div class="hero-badge">▶ ZERO KNOWLEDGE WAR PROTOCOL ONLINE</div>
-      <h1>SEALED BID<br><span>AUCTION</span></h1>
-      <p>Bids encrypted in-browser. Winner computed over ciphertext by Arcium MPC nodes. No amount ever revealed. Only the victor is announced.</p>
-      <div class="hero-stats">
-        <div class="stat-block"><span class="stat-val">100%</span><span class="stat-lbl">Encrypted</span></div>
-        <div class="stat-block"><span class="stat-val">ZERO</span><span class="stat-lbl">Bids Leaked</span></div>
-        <div class="stat-block"><span class="stat-val">3+</span><span class="stat-lbl">MPC Nodes</span></div>
-        <div class="stat-block"><span class="stat-val">SOL</span><span class="stat-lbl">Devnet</span></div>
-      </div>
-      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-        <button class="btn btn-primary" onclick="showSection('auction')">✈ LAUNCH AUCTION</button>
-        <button class="btn btn-secondary" onclick="showSection('quiz')">🧠 INTEL QUIZ</button>
-        <button class="btn btn-gold" onclick="showSection('games')">🎮 ENTER ARCADE</button>
-      </div>
+  <div class="hero">
+    <div class="hero-badge">▶ ZERO KNOWLEDGE WAR PROTOCOL ONLINE</div>
+    <h1>SEALED BID<br><span>AUCTION</span></h1>
+    <p>Bids encrypted client-side. Winner computed over ciphertext by Arcium MPC nodes. No amount ever revealed. Only the victor is announced.</p>
+    <div class="hero-stats">
+      <div class="stat-block"><span class="stat-val">100%</span><span class="stat-lbl">Encrypted</span></div>
+      <div class="stat-block"><span class="stat-val">ZERO</span><span class="stat-lbl">Bids Leaked</span></div>
+      <div class="stat-block"><span class="stat-val">3+</span><span class="stat-lbl">MPC Nodes</span></div>
+      <div class="stat-block"><span class="stat-val">SOL</span><span class="stat-lbl">Devnet</span></div>
     </div>
-
-    <div class="divider"></div>
-
-    <!-- How it works -->
-    <div class="card" style="margin-bottom:1rem;">
-      <div class="card-title">⚡ HOW ARCIUM MPC WORKS</div>
-      <div class="node-diagram">
-        <div class="nd-item"><div class="nd-icon">👤</div><div class="nd-label">BIDDER<br>Encrypts in browser</div></div>
-        <div class="nd-arrow">→</div>
-        <div class="nd-item"><div class="nd-icon">⛓</div><div class="nd-label">SOLANA<br>Stores ciphertext</div></div>
-        <div class="nd-arrow">→</div>
-        <div class="nd-item" style="border-color:var(--accent);"><div class="nd-icon">🖥</div><div class="nd-label">NODE 1<br>Share 1 only</div></div>
-        <div class="nd-arrow">+</div>
-        <div class="nd-item" style="border-color:var(--accent);"><div class="nd-icon">🖥</div><div class="nd-label">NODE 2<br>Share 2 only</div></div>
-        <div class="nd-arrow">+</div>
-        <div class="nd-item" style="border-color:var(--accent);"><div class="nd-icon">🖥</div><div class="nd-label">NODE 3<br>Share 3 only</div></div>
-        <div class="nd-arrow">→</div>
-        <div class="nd-item" style="border-color:var(--gold);"><div class="nd-icon">🏆</div><div class="nd-label">VICTOR<br>Revealed on-chain</div></div>
-      </div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="go('auction')">✈ LAUNCH AUCTION</button>
+      <button class="btn btn-gold" onclick="go('games')">🎮 ENTER ARCADE</button>
+      <button class="btn btn-secondary" onclick="go('quiz')">🧠 INTEL QUIZ</button>
     </div>
+  </div>
 
-    <!-- Real world use cases -->
-    <div class="grid-auto" style="margin-bottom:2rem;">
-      <div class="threat-card">
-        <span class="threat-icon">🏦</span>
-        <div class="threat-title">BANK LOAN AUCTIONS</div>
-        <div class="threat-bad">❌ Banks see competitor rates → collusion → inflated costs</div>
-        <div class="threat-good">✅ All bids encrypted. Best rate wins — blind.</div>
-      </div>
-      <div class="threat-card">
-        <span class="threat-icon">🏥</span>
-        <div class="threat-title">MEDICAL DATA MARKETS</div>
-        <div class="threat-bad">❌ Patient data exposed during negotiation</div>
-        <div class="threat-good">✅ Data stays encrypted. Buyers bid completely blind.</div>
-      </div>
-      <div class="threat-card">
-        <span class="threat-icon">🎮</span>
-        <div class="threat-title">NFT / DIGITAL ASSETS</div>
-        <div class="threat-bad">❌ Visible bids let whales snipe at last second</div>
-        <div class="threat-good">✅ Sealed bids = no sniping. Highest honest bid always wins.</div>
-      </div>
-      <div class="threat-card">
-        <span class="threat-icon">🏛</span>
-        <div class="threat-title">GOVERNMENT CONTRACTS</div>
-        <div class="threat-bad">❌ Leaked bids cost taxpayers billions</div>
-        <div class="threat-good">✅ MPC-sealed bids ensure zero insider knowledge.</div>
-      </div>
+  <div class="divider"></div>
+
+  <div class="card" style="margin-bottom:1rem;">
+    <div class="card-title">⚡ HOW ARCIUM MPC WORKS</div>
+    <div class="node-diagram">
+      <div class="nd-item"><div class="nd-icon">👤</div><div class="nd-label">BIDDER<br>Browser encrypt</div></div>
+      <div class="nd-arrow">→</div>
+      <div class="nd-item"><div class="nd-icon">⛓</div><div class="nd-label">SOLANA<br>Stores ciphertext</div></div>
+      <div class="nd-arrow">→</div>
+      <div class="nd-item" style="border-color:var(--accent);"><div class="nd-icon">🖥</div><div class="nd-label">NODE 1<br>Share 1 only</div></div>
+      <div class="nd-arrow">+</div>
+      <div class="nd-item" style="border-color:var(--accent);"><div class="nd-icon">🖥</div><div class="nd-label">NODE 2<br>Share 2 only</div></div>
+      <div class="nd-arrow">+</div>
+      <div class="nd-item" style="border-color:var(--accent);"><div class="nd-icon">🖥</div><div class="nd-label">NODE 3<br>Share 3 only</div></div>
+      <div class="nd-arrow">→</div>
+      <div class="nd-item" style="border-color:var(--gold);"><div class="nd-icon">🏆</div><div class="nd-label">VICTOR<br>Revealed on-chain</div></div>
     </div>
+  </div>
 
-    <!-- About operative -->
-    <div class="card">
-      <div class="card-title">🪖 OPERATIVE BRIEFING — HUSNAIN</div>
-      <div style="display:flex;gap:2rem;align-items:flex-start;flex-wrap:wrap;">
-        <div style="flex:1;min-width:250px;">
-          <p style="color:var(--text);line-height:1.8;margin-bottom:1rem;">Built a sealed-bid blind auction on Solana using Arcium's Multi-Party Computation network for the Arcium Hackathon. The mission: demonstrate real privacy-preserving computation on blockchain — bids encrypted client-side, winner computed without any party ever seeing individual amounts.</p>
-          <p style="color:var(--text-dim);font-size:0.85rem;line-height:1.7;">Traditional auctions are a warzone of sniping and manipulation. This changes that.</p>
+  <div class="grid-auto" style="margin-bottom:2rem;">
+    <div class="threat-card"><span class="threat-icon">🏦</span><div class="threat-title">BANK LOAN AUCTIONS</div><div class="threat-bad">❌ Competitor rates visible → collusion</div><div class="threat-good">✅ All bids encrypted. Best rate wins blind.</div></div>
+    <div class="threat-card"><span class="threat-icon">🏥</span><div class="threat-title">MEDICAL DATA MARKETS</div><div class="threat-bad">❌ Patient data exposed during negotiation</div><div class="threat-good">✅ Data stays encrypted. Buyers bid completely blind.</div></div>
+    <div class="threat-card"><span class="threat-icon">🎮</span><div class="threat-title">NFT / DIGITAL ASSETS</div><div class="threat-bad">❌ Visible bids let whales snipe last second</div><div class="threat-good">✅ Sealed bids — highest honest bid always wins.</div></div>
+    <div class="threat-card"><span class="threat-icon">🏛</span><div class="threat-title">GOVERNMENT CONTRACTS</div><div class="threat-bad">❌ Leaked bids cost taxpayers billions</div><div class="threat-good">✅ MPC-sealed bids — zero insider knowledge.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🪖 OPERATIVE BRIEFING — HUSNAIN</div>
+    <div style="display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start;">
+      <div style="flex:1;min-width:240px;">
+        <p style="color:var(--text);line-height:1.8;margin-bottom:1rem;">Built a sealed-bid blind auction on Solana using Arcium's Multi-Party Computation network for the Arcium Hackathon. Bids are encrypted client-side — the winner is computed without any party ever seeing individual amounts.</p>
+        <p style="color:var(--text-dim);font-size:0.85rem;line-height:1.7;margin-bottom:1.2rem;">Traditional auctions are a warzone of sniping and manipulation. This changes that.</p>
+        <div class="social-row">
+          <a href="https://twitter.com/husnain50376345" target="_blank" class="btn sl-tw">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.629L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            @husnain50376345
+          </a>
+          <a href="https://github.com/sands786" target="_blank" class="btn sl-gh">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+            github.com/sands786
+          </a>
         </div>
-        <div>
-          <div class="card-title" style="margin-bottom:0.8rem;">ARSENAL</div>
-          <div class="tag-cloud">
-            <span class="tech-tag">SOLANA</span>
-            <span class="tech-tag">ANCHOR</span>
-            <span class="tech-tag">RUST</span>
-            <span class="tech-tag">ARCIUM MPC</span>
-            <span class="tech-tag">ARCIS DSL</span>
-            <span class="tech-tag">TYPESCRIPT</span>
-            <span class="tech-tag">PHANTOM</span>
-            <span class="tech-tag">VERCEL</span>
-          </div>
-          <div style="margin-top:1.5rem;display:flex;gap:8px;flex-wrap:wrap;">
-            <a href="https://github.com/sands786" target="_blank" class="btn btn-secondary" style="font-size:0.65rem;padding:8px 16px;">⚙ GITHUB</a>
-            <a href="https://twitter.com/husnain50376345" target="_blank" class="btn btn-secondary" style="font-size:0.65rem;padding:8px 16px;">🐦 TWITTER</a>
-          </div>
+      </div>
+      <div>
+        <div class="card-title" style="margin-bottom:0.8rem;">ARSENAL</div>
+        <div class="tag-cloud">
+          <span class="tech-tag">SOLANA</span><span class="tech-tag">ANCHOR</span><span class="tech-tag">RUST</span>
+          <span class="tech-tag">ARCIUM MPC</span><span class="tech-tag">ARCIS DSL</span>
+          <span class="tech-tag">TYPESCRIPT</span><span class="tech-tag">PHANTOM</span><span class="tech-tag">VERCEL</span>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- AUCTION -->
-<!-- ============================================================ -->
+<!-- ============================================================ AUCTION -->
 <div id="section-auction" class="section">
-  <div class="page-header">
-    <div class="page-title">✈ AUCTION COMMAND</div>
-    <div class="page-subtitle">SEALED BID PROTOCOL — ZERO KNOWLEDGE</div>
+  <div class="page-header"><div class="page-title">✈ AUCTION COMMAND</div><div class="page-subtitle">SEALED BID PROTOCOL — ZERO KNOWLEDGE</div></div>
+  <div class="demo-banner" id="bannerAuction">
+    <span style="font-size:1.1rem;">⚠️</span>
+    <p><strong>DEVNET MODE</strong> — Connect your Phantom wallet for live Solana devnet interaction.</p>
+    <button class="btn btn-secondary" style="font-size:0.62rem;padding:8px 14px;" onclick="openModal()">CONNECT WALLET</button>
   </div>
-  <div class="demo-banner">
-    <span class="di">⚠️</span>
-    <p><strong>DEVNET MODE ACTIVE</strong> — Phantom not detected. Operating in demo mode. Connect Phantom wallet for live Solana devnet interaction.</p>
-    <button class="btn btn-secondary" style="font-size:0.65rem;padding:8px 14px;" onclick="connectWallet()">CONNECT WALLET</button>
-  </div>
-
   <div class="grid-2">
-    <!-- Deploy Auction -->
     <div class="card">
       <div class="card-title">🚀 DEPLOY AUCTION</div>
-      <div class="field">
-        <label>Mission Title</label>
-        <input type="text" id="auctionTitle" placeholder="One-of-a-kind generative art...">
-      </div>
-      <div class="field">
-        <label>Briefing / Description</label>
-        <textarea id="auctionDesc" rows="3" style="resize:vertical;" placeholder="Describe the asset being auctioned..."></textarea>
-      </div>
-      <div class="field">
-        <label>Duration (Seconds)</label>
-        <input type="number" id="auctionDuration" value="300" min="60">
-      </div>
+      <div class="field"><label>Mission Title</label><input type="text" id="aTitle" placeholder="One-of-a-kind generative art..."></div>
+      <div class="field"><label>Briefing</label><textarea id="aDesc" rows="3" placeholder="Describe the asset..."></textarea></div>
+      <div class="field"><label>Duration (seconds)</label><input type="number" id="aDur" value="300" min="60"></div>
       <button class="btn btn-primary btn-full" onclick="deployAuction()">✈ LAUNCH AUCTION</button>
     </div>
-
-    <!-- Submit Bid -->
     <div class="card">
       <div class="card-title">🔐 SUBMIT ENCRYPTED BID</div>
-      <div class="field">
-        <label>Target Auction</label>
-        <select id="targetAuction">
-          <option value="">-- SELECT TARGET --</option>
-        </select>
-      </div>
-      <div id="auctionCountdownBox" style="margin-bottom:1rem;display:none;">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:2px;color:var(--text-dim);margin-bottom:4px;">⏱ TIME REMAINING</div>
-        <div class="countdown" id="countdownDisplay">--:--</div>
-      </div>
-      <div class="field">
-        <label>Bid Amount (SOL)</label>
-        <input type="number" id="bidAmount" step="0.01" min="0" placeholder="0.00">
-      </div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--green);margin-bottom:1rem;display:flex;align-items:center;gap:6px;">
-        <span>🔒</span> BID ENCRYPTED IN BROWSER — ONLY CIPHERTEXT STORED ON-CHAIN
-      </div>
+      <div class="field"><label>Target Auction</label><select id="targetAuction"><option value="">-- SELECT TARGET --</option></select></div>
+      <div class="field"><label>Bid Amount (SOL)</label><input type="number" id="bidAmt" step="0.01" min="0" placeholder="0.00"></div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--green);margin-bottom:1rem;display:flex;align-items:center;gap:6px;">🔒 ENCRYPTED IN BROWSER — ONLY CIPHERTEXT ON-CHAIN</div>
       <button class="btn btn-primary btn-full" onclick="submitBid()">🔐 ENCRYPT & FIRE BID</button>
     </div>
   </div>
-
-  <!-- Active Missions -->
   <div class="card" style="margin-top:1rem;">
     <div class="card-title">📡 ACTIVE MISSIONS</div>
-    <div id="activeMissions">
-      <div style="text-align:center;padding:2rem;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:0.75rem;letter-spacing:2px;">
-        NO ACTIVE MISSIONS — DEPLOY ONE
-      </div>
-    </div>
+    <div id="activeMissions"><div style="text-align:center;padding:2rem;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:0.72rem;letter-spacing:2px;">NO ACTIVE MISSIONS — DEPLOY ONE</div></div>
   </div>
-
-  <!-- Comms Log -->
   <div class="card" style="margin-top:1rem;">
     <div class="card-title">📻 COMMS LOG</div>
     <div class="comms" id="commsLog">
       <div class="log-line"><span class="log-time">[BOOT]</span><span class="log-msg info">ARCIUM WAR PROTOCOL INITIALIZED — SOLANA DEVNET</span></div>
     </div>
   </div>
-
-  <!-- Encryption Visual -->
   <div class="card" style="margin-top:1rem;">
-    <div class="card-title">🔬 ENCRYPTION OPERATION DETAIL</div>
-    <div style="margin-bottom:0.5rem;font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--text-dim);letter-spacing:2px;">STEP-BY-STEP — EXAMPLE BID OF 2.5 SOL</div>
+    <div class="card-title">🔬 ENCRYPTION DETAIL — EXAMPLE 2.5 SOL BID</div>
     <div class="encrypt-flow">
-      <div class="ef-node"><div class="label">1 · RAW BID</div><div class="value">{"amount": 2.5}</div></div>
+      <div class="ef-node"><div class="label">1 · RAW BID</div><div class="value">{"amount":2.5}</div></div>
       <div class="ef-arrow">→</div>
-      <div class="ef-node"><div class="label">2 · ARCIUM MXE</div><div class="value" style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">8f3a92bc4d1e7f6a...</div></div>
+      <div class="ef-node"><div class="label">2 · ARCIUM MXE</div><div class="value">8f3a92bc4d1e7f6a...</div></div>
       <div class="ef-arrow">→</div>
-      <div class="ef-node"><div class="label">3 · ON SOLANA</div><div class="value">7TY1q4...cVW4x</div></div>
+      <div class="ef-node"><div class="label">3 · SOLANA</div><div class="value">7TY1q4...cVW4x</div></div>
       <div class="ef-arrow">→</div>
       <div class="ef-node"><div class="label">4 · MPC MAX()</div><div class="value" style="color:var(--gold);">WINNER ONLY</div></div>
     </div>
   </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- GAMES ARCADE -->
-<!-- ============================================================ -->
+<!-- ============================================================ GAMES -->
 <div id="section-games" class="section">
-  <div class="page-header">
-    <div class="page-title">🎮 ARCIUM ARCADE</div>
-    <div class="page-subtitle">PLAY ON SOLANA DEVNET — SOL REQUIRED FOR PREMIUM MODES</div>
+  <div class="page-header"><div class="page-title">🎮 ARCIUM ARCADE</div><div class="page-subtitle">PLAY ON SOLANA DEVNET — SOL REQUIRED FOR WAGER MODES</div></div>
+  <div class="demo-banner" id="bannerGames">
+    <span style="font-size:1.1rem;">💡</span>
+    <p>Wager modes need <strong>Devnet SOL</strong>. Get some free at <a href="https://faucet.solana.com" target="_blank" style="color:inherit;font-weight:700;">faucet.solana.com</a> then connect Phantom.</p>
   </div>
-
-  <div class="demo-banner">
-    <span class="di">💡</span>
-    <p>Some game modes require <strong>Solana Devnet SOL</strong>. Get free devnet SOL from <strong>faucet.solana.com</strong> and connect your Phantom wallet to enable wagering modes.</p>
-  </div>
-
-  <!-- Game selection -->
   <div id="gameSelect">
     <div class="grid-3" style="margin-bottom:2rem;">
       <div class="game-card" onclick="startTTT()">
         <div class="game-icon">⭕</div>
         <div class="game-name">TIC TAC TOE</div>
-        <div class="game-desc">Classic strategy against AI or PvP. Challenge the Arcium nodes themselves — encrypted moves, sealed outcome.</div>
+        <div class="game-desc">Classic strategy vs unbeatable AI. Encrypted moves, sealed outcome. Beat the machine if you can.</div>
         <div class="game-cost">🆓 FREE PLAY + 💰 0.01 SOL WAGER MODE</div>
       </div>
-      <div class="game-card" onclick="showToast('MEMORY MATRIX coming in next deployment...','info')">
+      <div class="game-card" onclick="showToast('Memory Matrix coming in next deployment!','info')">
         <div class="game-icon">🧩</div>
         <div class="game-name">MEMORY MATRIX</div>
-        <div class="game-desc">Decrypt the sequence. Match encrypted pairs in this MPC-themed memory challenge.</div>
-        <div class="game-cost">🆓 FREE PLAY — COMING SOON</div>
+        <div class="game-desc">Match encrypted pairs in this MPC-themed memory challenge.</div>
+        <div class="game-cost">🆓 FREE — COMING SOON</div>
       </div>
-      <div class="game-card" onclick="showSection('quiz')">
+      <div class="game-card" onclick="go('quiz')">
         <div class="game-icon">🧠</div>
         <div class="game-name">ARCIUM QUIZ</div>
-        <div class="game-desc">Test your knowledge of MPC, ZK cryptography, and Arcium protocol. Earn your rank.</div>
+        <div class="game-desc">15 questions on MPC and ZK cryptography. Earn your combat rank.</div>
         <div class="game-cost">🆓 FREE — EARN RANK + BADGE</div>
       </div>
     </div>
   </div>
-
-  <!-- TTT Game Area -->
-  <div id="tttGame">
-    <div class="card" style="max-width:600px;margin:0 auto;">
-      <div class="card-title" style="justify-content:space-between;">
-        ⭕ TIC TAC TOE — ARCIUM EDITION
-        <button class="btn btn-secondary" style="font-size:0.6rem;padding:5px 12px;" onclick="exitTTT()">← BACK</button>
-      </div>
-
+  <div id="tttGame" style="display:none;">
+    <div class="card" style="max-width:520px;margin:0 auto;">
+      <div class="card-title" style="justify-content:space-between;">⭕ TIC TAC TOE<button class="btn btn-secondary" style="font-size:0.6rem;padding:5px 12px;" onclick="exitTTT()">← BACK</button></div>
       <div class="ttt-score">
         <div class="score-box"><div class="sv" id="scoreX">0</div><div class="sl">YOU (✕)</div></div>
-        <div class="score-box"><div class="sv" id="scoreDraw" style="color:var(--text-dim);">0</div><div class="sl">DRAW</div></div>
+        <div class="score-box"><div class="sv" id="scoreD" style="color:var(--text-dim);">0</div><div class="sl">DRAW</div></div>
         <div class="score-box"><div class="sv" id="scoreO" style="color:var(--gold);">0</div><div class="sl">AI (○)</div></div>
       </div>
-
       <div class="ttt-status" id="tttStatus">YOUR MOVE — YOU ARE ✕</div>
-
       <div class="ttt-board" id="tttBoard">
-        <div class="ttt-cell" onclick="tttMove(0)"></div>
-        <div class="ttt-cell" onclick="tttMove(1)"></div>
-        <div class="ttt-cell" onclick="tttMove(2)"></div>
-        <div class="ttt-cell" onclick="tttMove(3)"></div>
-        <div class="ttt-cell" onclick="tttMove(4)"></div>
-        <div class="ttt-cell" onclick="tttMove(5)"></div>
-        <div class="ttt-cell" onclick="tttMove(6)"></div>
-        <div class="ttt-cell" onclick="tttMove(7)"></div>
-        <div class="ttt-cell" onclick="tttMove(8)"></div>
+        <div class="ttt-cell" data-idx="0" onclick="tttMove(0)"></div><div class="ttt-cell" data-idx="1" onclick="tttMove(1)"></div><div class="ttt-cell" data-idx="2" onclick="tttMove(2)"></div>
+        <div class="ttt-cell" data-idx="3" onclick="tttMove(3)"></div><div class="ttt-cell" data-idx="4" onclick="tttMove(4)"></div><div class="ttt-cell" data-idx="5" onclick="tttMove(5)"></div>
+        <div class="ttt-cell" data-idx="6" onclick="tttMove(6)"></div><div class="ttt-cell" data-idx="7" onclick="tttMove(7)"></div><div class="ttt-cell" data-idx="8" onclick="tttMove(8)"></div>
       </div>
-
       <div style="text-align:center;margin-top:1.5rem;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
-        <button class="btn btn-secondary" onclick="resetTTT()" style="font-size:0.7rem;">↺ RESET BOARD</button>
-        <button class="btn btn-gold" onclick="showToast('Connect Phantom wallet to enable 0.01 SOL wager mode!','info')" style="font-size:0.7rem;">💰 WAGER 0.01 SOL</button>
+        <button class="btn btn-secondary" onclick="resetTTT()">↺ RESET</button>
+        <button class="btn btn-gold" onclick="wagerMode()">💰 WAGER 0.01 SOL</button>
       </div>
-
-      <div style="margin-top:1.5rem;padding:1rem;background:var(--bg);border:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--text-dim);">
-        <span style="color:var(--accent);">// ARCIUM PROTOCOL:</span> In wager mode, both moves and bets are encrypted via MPC. The winner is computed over ciphertext — the AI never knows your strategy until the game ends. Zero trust required.
+      <div style="margin-top:1rem;padding:1rem;background:var(--bg);border:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--text-dim);">
+        <span style="color:var(--accent);">// ARCIUM:</span> In wager mode, moves and bets are MPC-encrypted. Winner computed over ciphertext. Zero trust.
       </div>
     </div>
   </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- QUIZ -->
-<!-- ============================================================ -->
+<!-- ============================================================ QUIZ -->
 <div id="section-quiz" class="section">
-  <div class="page-header">
-    <div class="page-title">🧠 ARCIUM INTEL QUIZ</div>
-    <div class="page-subtitle">15 CLASSIFIED QUESTIONS — EARN YOUR RANK</div>
-  </div>
-
-  <!-- Rank table preview -->
+  <div class="page-header"><div class="page-title">🧠 ARCIUM INTEL QUIZ</div><div class="page-subtitle">15 CLASSIFIED QUESTIONS — EARN YOUR COMBAT RANK</div></div>
   <div id="quizIntro" class="quiz-container">
-    <div class="card" style="margin-bottom:1rem;">
+    <div class="card" style="margin-bottom:1.5rem;">
       <div class="card-title">🎖 RANK CLASSIFICATIONS</div>
       <div style="display:flex;flex-direction:column;gap:6px;">
-        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem;background:var(--bg);border:1px solid rgba(255,215,0,0.3);">
-          <span class="rank-badge rank-LEGEND" style="font-size:0.6rem;padding:5px 14px;">LEGEND</span>
-          <div><div style="color:var(--text-bright);font-weight:700;">14–15 Correct</div><div style="font-size:0.75rem;color:var(--text-dim);">You ARE the protocol. Arcium Core Team material.</div></div>
-          <span class="chip chip-green" style="margin-left:auto;">93%+</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem;background:var(--bg);border:1px solid rgba(192,192,192,0.3);">
-          <span class="rank-badge rank-COMMANDER" style="font-size:0.6rem;padding:5px 14px;">COMMANDER</span>
-          <div><div style="color:var(--text-bright);font-weight:700;">11–13 Correct</div><div style="font-size:0.75rem;color:var(--text-dim);">Crypto warrior. You know your MPC from your ZKP.</div></div>
-          <span class="chip chip-accent" style="margin-left:auto;">73%+</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem;background:var(--bg);border:1px solid rgba(205,127,50,0.3);">
-          <span class="rank-badge rank-WARRIOR" style="font-size:0.6rem;padding:5px 14px;">WARRIOR</span>
-          <div><div style="color:var(--text-bright);font-weight:700;">8–10 Correct</div><div style="font-size:0.75rem;color:var(--text-dim);">Solid operative. Understands the battlefield.</div></div>
-          <span class="chip chip-accent" style="margin-left:auto;">53%+</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem;background:var(--bg);border:1px solid var(--border);">
-          <span class="rank-badge rank-SOLDIER" style="font-size:0.6rem;padding:5px 14px;">SOLDIER</span>
-          <div><div style="color:var(--text-bright);font-weight:700;">5–7 Correct</div><div style="font-size:0.75rem;color:var(--text-dim);">Enlisted. Still learning the ropes.</div></div>
-          <span class="chip chip-accent" style="margin-left:auto;">33%+</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem;background:var(--bg);border:1px solid var(--border);">
-          <span class="rank-badge rank-RECRUIT" style="font-size:0.6rem;padding:5px 14px;">RECRUIT</span>
-          <div><div style="color:var(--text-bright);font-weight:700;">0–4 Correct</div><div style="font-size:0.75rem;color:var(--text-dim);">Just joined the unit. Training begins now.</div></div>
-          <span class="chip chip-purple" style="margin-left:auto;">0–32%</span>
-        </div>
+        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem;background:var(--bg);border:1px solid rgba(255,215,0,0.3);flex-wrap:wrap;"><span class="rank-badge rank-LEGEND" style="font-size:0.55rem;padding:5px 12px;">LEGEND</span><div><div style="color:var(--text-bright);font-weight:700;">14–15 Correct</div><div style="font-size:0.75rem;color:var(--text-dim);">You ARE the protocol. Core team material.</div></div><span class="chip chip-green" style="margin-left:auto;">93%+</span></div>
+        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem;background:var(--bg);border:1px solid rgba(192,192,192,0.3);flex-wrap:wrap;"><span class="rank-badge rank-COMMANDER" style="font-size:0.55rem;padding:5px 12px;">COMMANDER</span><div><div style="color:var(--text-bright);font-weight:700;">11–13 Correct</div><div style="font-size:0.75rem;color:var(--text-dim);">Crypto warrior. MPC is your second language.</div></div><span class="chip chip-accent" style="margin-left:auto;">73%+</span></div>
+        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem;background:var(--bg);border:1px solid rgba(205,127,50,0.3);flex-wrap:wrap;"><span class="rank-badge rank-WARRIOR" style="font-size:0.55rem;padding:5px 12px;">WARRIOR</span><div><div style="color:var(--text-bright);font-weight:700;">8–10 Correct</div><div style="font-size:0.75rem;color:var(--text-dim);">Solid operative. Knows the battlefield.</div></div><span class="chip chip-accent" style="margin-left:auto;">53%+</span></div>
+        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem;background:var(--bg);border:1px solid var(--border);flex-wrap:wrap;"><span class="rank-badge rank-SOLDIER" style="font-size:0.55rem;padding:5px 12px;">SOLDIER</span><div><div style="color:var(--text-bright);font-weight:700;">5–7 Correct</div><div style="font-size:0.75rem;color:var(--text-dim);">Enlisted. Still learning the ropes.</div></div><span class="chip chip-accent" style="margin-left:auto;">33%+</span></div>
+        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem;background:var(--bg);border:1px solid var(--border);flex-wrap:wrap;"><span class="rank-badge rank-RECRUIT" style="font-size:0.55rem;padding:5px 12px;">RECRUIT</span><div><div style="color:var(--text-bright);font-weight:700;">0–4 Correct</div><div style="font-size:0.75rem;color:var(--text-dim);">Just joined. Training begins now.</div></div><span class="chip chip-purple" style="margin-left:auto;">0–32%</span></div>
       </div>
     </div>
     <div style="text-align:center;padding:1rem 0;">
-      <p style="color:var(--text-dim);margin-bottom:1.5rem;font-size:0.9rem;">15 questions on MPC, ZK cryptography, Solana, and Arcium. Each question has a 20-second timer. No cheating — the protocol sees all.</p>
+      <p style="color:var(--text-dim);margin-bottom:1.5rem;">15 questions · 20 seconds each · No cheating — the protocol sees all.</p>
       <button class="btn btn-primary" style="font-size:0.8rem;padding:14px 40px;" onclick="startQuiz()">🚀 BEGIN MISSION</button>
     </div>
   </div>
-
-  <!-- Quiz in progress -->
   <div id="quizActive" class="quiz-container" style="display:none;">
     <div class="quiz-header">
-      <div>
-        <div class="card-title" style="margin-bottom:0;">QUESTION <span id="qNum">1</span> OF 15</div>
-        <div style="font-size:0.75rem;color:var(--text-dim);">Score: <span id="qScore" style="color:var(--green);">0</span> / <span id="qTotal">0</span></div>
-      </div>
+      <div><div class="card-title" style="margin-bottom:0;">QUESTION <span id="qNum">1</span> OF 15</div><div style="font-size:0.75rem;color:var(--text-dim);">Score: <span id="qScore" style="color:var(--green);">0</span> correct</div></div>
       <div class="quiz-timer" id="qTimer">20</div>
     </div>
-    <div class="quiz-progress-bar">
-      <div class="quiz-progress-fill" id="qProgress" style="width:0%;"></div>
-    </div>
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qProgress" style="width:0%;"></div></div>
     <div id="questionBox"></div>
-    <div style="text-align:right;margin-top:1rem;">
-      <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" style="display:none;">NEXT →</button>
-    </div>
+    <div style="text-align:right;margin-top:1rem;"><button class="btn btn-primary" id="nextBtn" onclick="nextQ()" style="display:none;">NEXT →</button></div>
   </div>
-
-  <!-- Quiz results -->
   <div id="quizResults" class="quiz-container" style="display:none;"></div>
 </div>
 
-<!-- ============================================================ -->
-<!-- INTEL / SHIELD -->
-<!-- ============================================================ -->
+<!-- ============================================================ SHIELD -->
 <div id="section-intel" class="section">
-  <div class="page-header">
-    <div class="page-title">🛡 ARCIUM SHIELD PROTOCOL</div>
-    <div class="page-subtitle">ZERO-KNOWLEDGE SEALED BID TECHNICAL BRIEFING</div>
-  </div>
-
+  <div class="page-header"><div class="page-title">🛡 ARCIUM SHIELD PROTOCOL</div><div class="page-subtitle">ZERO-KNOWLEDGE TECHNICAL BRIEFING</div></div>
   <div class="grid-2">
     <div class="card">
       <div class="card-title">🔄 PROTOCOL STEPS</div>
-      <div class="protocol-steps">
-        <div class="proto-step"><div class="step-num">1</div><div class="step-content"><h4>BROWSER ENCRYPTS</h4><p>MXE public key used — plaintext never leaves your device. Encryption happens entirely client-side using Arcium's key material.</p></div></div>
-        <div class="proto-step"><div class="step-num">2</div><div class="step-content"><h4>CIPHERTEXT ON-CHAIN</h4><p>64-byte encrypted blob stored in Solana program account. The blockchain sees only opaque bytes — no amounts, no strategy.</p></div></div>
-        <div class="proto-step"><div class="step-num">3</div><div class="step-content"><h4>MPC COMPUTATION</h4><p>Arcium nodes each hold a cryptographic share — no single node ever sees the full value. Computation runs over secret shares.</p></div></div>
-        <div class="proto-step"><div class="step-num">4</div><div class="step-content"><h4>ONLY VICTOR REVEALED</h4><p>Losing bids stay encrypted forever. Only the winner's public key is announced. All amounts remain classified permanently.</p></div></div>
-        <div class="proto-step"><div class="step-num">5</div><div class="step-content"><h4>ON-CHAIN PROOF</h4><p>Computation hash stored on Solana for public verification. Anyone can verify correctness — zero trust required.</p></div></div>
+      <div>
+        <div class="proto-step"><div class="step-num">1</div><div class="step-content"><h4>BROWSER ENCRYPTS</h4><p>MXE public key used — plaintext never leaves your device. Encryption is entirely client-side.</p></div></div>
+        <div class="proto-step"><div class="step-num">2</div><div class="step-content"><h4>CIPHERTEXT ON-CHAIN</h4><p>64-byte encrypted blob stored in Solana program account. The chain sees only opaque bytes.</p></div></div>
+        <div class="proto-step"><div class="step-num">3</div><div class="step-content"><h4>MPC COMPUTATION</h4><p>Arcium nodes each hold a cryptographic share. No single node ever sees the full value.</p></div></div>
+        <div class="proto-step"><div class="step-num">4</div><div class="step-content"><h4>ONLY VICTOR REVEALED</h4><p>Losing bids stay encrypted forever. Only the winner's public key is announced.</p></div></div>
+        <div class="proto-step"><div class="step-num">5</div><div class="step-content"><h4>ON-CHAIN PROOF</h4><p>Computation hash stored on Solana for public verification. Zero trust required.</p></div></div>
       </div>
     </div>
-
     <div>
       <div class="card" style="margin-bottom:1rem;">
         <div class="card-title">📊 NETWORK STATS</div>
         <div style="display:flex;gap:1rem;flex-wrap:wrap;">
-          <div style="flex:1;text-align:center;padding:1.5rem;background:var(--bg);border:1px solid var(--border);">
-            <div style="font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:900;color:var(--accent);">MXE</div>
-            <div style="font-size:0.65rem;letter-spacing:2px;color:var(--text-dim);margin-top:4px;">MULTI-PARTY EXECUTION ENV</div>
-          </div>
-          <div style="flex:1;text-align:center;padding:1.5rem;background:var(--bg);border:1px solid var(--border);">
-            <div style="font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:900;color:var(--green);">3+</div>
-            <div style="font-size:0.65rem;letter-spacing:2px;color:var(--text-dim);margin-top:4px;">MPC NODES / COMPUTATION</div>
-          </div>
-          <div style="flex:1;text-align:center;padding:1.5rem;background:var(--bg);border:1px solid var(--border);">
-            <div style="font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:900;color:var(--red);">ZERO</div>
-            <div style="font-size:0.65rem;letter-spacing:2px;color:var(--text-dim);margin-top:4px;">BID AMOUNTS LEAKED</div>
-          </div>
+          <div style="flex:1;text-align:center;padding:1.5rem 1rem;background:var(--bg);border:1px solid var(--border);"><div style="font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:var(--accent);">MXE</div><div style="font-size:0.6rem;letter-spacing:2px;color:var(--text-dim);margin-top:4px;">MULTI-PARTY EXECUTION ENV</div></div>
+          <div style="flex:1;text-align:center;padding:1.5rem 1rem;background:var(--bg);border:1px solid var(--border);"><div style="font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:var(--green);">3+</div><div style="font-size:0.6rem;letter-spacing:2px;color:var(--text-dim);margin-top:4px;">MPC NODES</div></div>
+          <div style="flex:1;text-align:center;padding:1.5rem 1rem;background:var(--bg);border:1px solid var(--border);"><div style="font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:var(--red);">ZERO</div><div style="font-size:0.6rem;letter-spacing:2px;color:var(--text-dim);margin-top:4px;">BIDS LEAKED</div></div>
         </div>
       </div>
-
       <div class="card" style="margin-bottom:1rem;">
         <div class="card-title">🔗 INTEL SOURCES</div>
-        <div style="display:flex;flex-direction:column;gap:6px;font-family:'Share Tech Mono',monospace;font-size:0.75rem;">
-          <a href="https://arcium.com" target="_blank" style="color:var(--accent);text-decoration:none;padding:8px;background:var(--bg);border:1px solid var(--border);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶ arcium.com — Arcium HQ</a>
-          <a href="https://discord.gg/arcium" target="_blank" style="color:var(--accent);text-decoration:none;padding:8px;background:var(--bg);border:1px solid var(--border);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶ discord.gg/arcium — Comms Channel</a>
-          <a href="https://github.com/sands786/arcium-blind-auction" target="_blank" style="color:var(--accent);text-decoration:none;padding:8px;background:var(--bg);border:1px solid var(--border);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶ github.com/sands786 — Source Code</a>
+        <div style="display:flex;flex-direction:column;gap:5px;font-family:'Share Tech Mono',monospace;font-size:0.72rem;">
+          <a href="https://arcium.com" target="_blank" style="color:var(--accent);text-decoration:none;padding:8px;background:var(--bg);border:1px solid var(--border);" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶ arcium.com — Arcium HQ</a>
+          <a href="https://discord.gg/arcium" target="_blank" style="color:var(--accent);text-decoration:none;padding:8px;background:var(--bg);border:1px solid var(--border);" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶ discord.gg/arcium — Comms Channel</a>
+          <a href="https://github.com/sands786/arcium-blind-auction" target="_blank" style="color:var(--accent);text-decoration:none;padding:8px;background:var(--bg);border:1px solid var(--border);" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶ github.com/sands786 — Source Code</a>
           <div style="color:var(--text-dim);padding:8px;background:var(--bg);border:1px solid var(--border);">▶ Program ID: <span style="color:var(--accent);">7TY1q4...cVW4x</span></div>
         </div>
       </div>
-
       <div class="card">
         <div class="card-title">⚔ TRADITIONAL VS ARCIUM</div>
-        <p style="font-size:0.85rem;color:var(--text-dim);line-height:1.8;">Traditional on-chain auctions are fully transparent — bots watch every block and snipe at the last second. Even "private" auctions rely on a central operator who can leak bids.</p>
-        <p style="font-size:0.85rem;color:var(--text);line-height:1.8;margin-top:0.8rem;">With Arcium, the smart contract itself <strong>cannot read bid amounts</strong>. The only output is the winner — computed privately across MPC nodes. <span style="color:var(--green);">Zero trust required. Mathematically guaranteed.</span></p>
+        <p style="font-size:0.85rem;color:var(--text-dim);line-height:1.8;">Traditional on-chain auctions are fully transparent — bots snipe every block. "Private" auctions rely on a central operator who can leak bids.</p>
+        <p style="font-size:0.85rem;color:var(--text);line-height:1.8;margin-top:0.8rem;">With Arcium the smart contract <strong>cannot read bid amounts</strong>. Only the winner is computed — <span style="color:var(--green);">zero trust. Mathematically guaranteed.</span></p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- PROFILE -->
-<!-- ============================================================ -->
+<!-- ============================================================ PROFILE -->
 <div id="section-profile" class="section">
-  <div class="page-header">
-    <div class="page-title">🪖 OPERATIVE PROFILE</div>
-    <div class="page-subtitle">HUSNAIN · SOLANA OPERATIVE · WEB3 BUILDER</div>
-  </div>
-
+  <div class="page-header"><div class="page-title">🪖 OPERATIVE PROFILE</div><div class="page-subtitle">HUSNAIN · SOLANA OPERATIVE · WEB3 BUILDER · ARCIUM HACKATHON</div></div>
   <div class="profile-header">
     <div class="profile-avatar">🪖</div>
     <div class="profile-info">
       <h2>HUSNAIN</h2>
-      <div class="handle">@husnain50376345 · github.com/sands786</div>
+      <div class="handle">Solana Operative · Web3 Builder</div>
       <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-        <span class="chip chip-accent">SOLANA OPERATIVE</span>
-        <span class="chip chip-green">WEB3 BUILDER</span>
-        <span class="chip chip-purple">ARCIUM HACKATHON</span>
+        <span class="chip chip-accent">SOLANA</span><span class="chip chip-green">WEB3 BUILDER</span><span class="chip chip-purple">ARCIUM HACKATHON</span>
+      </div>
+      <!-- Social buttons in profile -->
+      <div class="social-row">
+        <a href="https://twitter.com/husnain50376345" target="_blank" class="btn sl-tw">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.629L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          @husnain50376345
+        </a>
+        <a href="https://github.com/sands786" target="_blank" class="btn sl-gh">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          github.com/sands786
+        </a>
+        <a href="https://github.com/sands786/arcium-blind-auction" target="_blank" class="btn btn-secondary" style="font-size:0.62rem;">⚙ VIEW REPO</a>
       </div>
       <div class="profile-stats">
-        <div class="p-stat"><div class="p-stat-val" id="profileAuctions">0</div><div class="p-stat-lbl">Auctions</div></div>
-        <div class="p-stat"><div class="p-stat-val" id="profileBids">0</div><div class="p-stat-lbl">Bids</div></div>
-        <div class="p-stat"><div class="p-stat-val" id="profileQuizScore">—</div><div class="p-stat-lbl">Quiz Score</div></div>
-        <div class="p-stat"><div class="p-stat-val" id="profileRank">—</div><div class="p-stat-lbl">Rank</div></div>
-        <div class="p-stat"><div class="p-stat-val" id="profileGames">0</div><div class="p-stat-lbl">Games Won</div></div>
+        <div class="p-stat"><div class="p-stat-val" id="pAuctions">0</div><div class="p-stat-lbl">Auctions</div></div>
+        <div class="p-stat"><div class="p-stat-val" id="pBids">0</div><div class="p-stat-lbl">Bids</div></div>
+        <div class="p-stat"><div class="p-stat-val" id="pQuiz">—</div><div class="p-stat-lbl">Quiz Score</div></div>
+        <div class="p-stat"><div class="p-stat-val" id="pRank">—</div><div class="p-stat-lbl">Rank</div></div>
+        <div class="p-stat"><div class="p-stat-val" id="pGames">0</div><div class="p-stat-lbl">TTT Wins</div></div>
       </div>
     </div>
   </div>
-
   <div class="grid-2">
     <div class="card">
       <div class="card-title">📋 WALLET INFO</div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:0.75rem;">
-        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
-          <span style="color:var(--text-dim);">STATUS</span>
-          <span class="mission-badge badge-pending"><span class="pulse-dot"></span> DEMO MODE</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
-          <span style="color:var(--text-dim);">NETWORK</span>
-          <span style="color:var(--accent);">SOLANA DEVNET</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
-          <span style="color:var(--text-dim);">PROGRAM ID</span>
-          <span style="color:var(--text);">7TY1q4...cVW4x</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0;">
-          <span style="color:var(--text-dim);">BALANCE</span>
-          <span style="color:var(--green);">-- SOL</span>
-        </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text-dim);">STATUS</span><span id="wStatus"><span class="mission-badge badge-pending"><span class="pulse-dot"></span> NOT CONNECTED</span></span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text-dim);">NETWORK</span><span style="color:var(--accent);">SOLANA DEVNET</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text-dim);">ADDRESS</span><span id="wAddr" style="color:var(--text);">NOT CONNECTED</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text-dim);">PROGRAM ID</span><span style="color:var(--text-dim);">7TY1q4...cVW4x</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0;"><span style="color:var(--text-dim);">BALANCE</span><span id="wBal" style="color:var(--green);">-- SOL</span></div>
       </div>
-      <button class="btn btn-primary btn-full" style="margin-top:1rem;" onclick="connectWallet()">◈ CONNECT PHANTOM</button>
+      <div style="display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap;">
+        <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="openModal()">◈ CONNECT PHANTOM</button>
+        <button class="btn btn-secondary" id="discBtn" style="display:none;" onclick="disconnect()">DISCONNECT</button>
+      </div>
+      <div style="margin-top:0.8rem;text-align:center;font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--text-dim);">
+        No Phantom? <a href="https://phantom.com" target="_blank" style="color:var(--accent);">phantom.com</a>&nbsp;·&nbsp;Need SOL? <a href="https://faucet.solana.com" target="_blank" style="color:var(--accent);">faucet.solana.com</a>
+      </div>
     </div>
-
     <div class="card">
       <div class="card-title">🎖 ENGAGEMENT HISTORY</div>
-      <div id="engagementHistory">
-        <div style="text-align:center;padding:2rem;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:0.75rem;letter-spacing:2px;">
-          NO ENGAGEMENTS LOGGED
-        </div>
-      </div>
+      <div id="engHistory"><div style="text-align:center;padding:2rem;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:0.72rem;letter-spacing:2px;">NO ENGAGEMENTS LOGGED</div></div>
     </div>
   </div>
 </div>
@@ -1175,451 +604,409 @@
 <script>
 // ================================================================
 // STATE
-// ================================================================
-const state = {
-  auctions: [],
-  bids: [],
-  activeAuction: null,
-  commsLog: [],
-  ttt: { board: Array(9).fill(null), xTurn: true, scores: {X:0,O:0,D:0}, running: true },
-  quiz: { current: 0, score: 0, answers: [], timer: null, timeLeft: 20, totalTime: 0, startTime: null },
-  profile: { auctions: 0, bids: 0, quizScore: null, rank: null, wins: 0 },
-  wallet: null,
+const S={
+  auctions:[],bids:[],wallet:null,
+  ttt:{board:Array(9).fill(null),scores:{X:0,O:0,D:0},running:true},
+  quiz:{i:0,score:0,answers:[],timer:null,tLeft:20,t0:null},
+  prof:{auctions:0,bids:0,quizScore:null,rank:null}
 };
 
 // ================================================================
 // NAV
-// ================================================================
-function showSection(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
-  document.getElementById('section-' + id)?.classList.add('active');
-  document.getElementById('nav-' + id)?.classList.add('active');
+function go(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+  document.getElementById('section-'+id)?.classList.add('active');
+  document.getElementById('nav-'+id)?.classList.add('active');
 }
 
 // ================================================================
 // TOAST
-// ================================================================
-function showToast(msg, type = 'info') {
-  const c = document.getElementById('toastContainer');
-  const t = document.createElement('div');
-  t.className = `toast ${type}`;
-  const icons = {info:'ℹ',success:'✓',error:'✕'};
-  t.innerHTML = `<span>${icons[type]||'ℹ'}</span><span>${msg}</span>`;
+function showToast(msg,type='info'){
+  const c=document.getElementById('toastC');
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`<span>${{info:'ℹ',success:'✓',error:'✕',warn:'⚠'}[type]||'ℹ'}</span><span>${msg}</span>`;
   c.appendChild(t);
-  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3500);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.3s';setTimeout(()=>t.remove(),300);},3500);
+}
+
+// ================================================================
+// LOG
+function addLog(msg,type='info'){
+  const el=document.getElementById('commsLog');if(!el)return;
+  const now=new Date().toLocaleTimeString('en',{hour12:false});
+  const d=document.createElement('div');d.className='log-line';
+  d.innerHTML=`<span class="log-time">[${now}]</span><span class="log-msg ${type}">${msg}</span>`;
+  el.appendChild(d);el.scrollTop=el.scrollHeight;
 }
 
 // ================================================================
 // WALLET
-// ================================================================
-function connectWallet() {
-  showToast('Phantom not detected — running in demo mode','info');
-  addLog('PHANTOM NOT DETECTED — DEMO MODE ACTIVE', 'warn');
+function getPhantom(){
+  if(window.phantom?.solana?.isPhantom)return window.phantom.solana;
+  if(window.solana?.isPhantom)return window.solana;
+  return null;
 }
 
-// ================================================================
-// COMMS LOG
-// ================================================================
-function addLog(msg, type = 'info') {
-  const log = document.getElementById('commsLog');
-  const now = new Date().toLocaleTimeString('en',{hour12:false});
-  const line = document.createElement('div');
-  line.className = 'log-line';
-  line.innerHTML = `<span class="log-time">[${now}]</span><span class="log-msg ${type}">${msg}</span>`;
-  log.appendChild(line);
-  log.scrollTop = log.scrollHeight;
+function openModal(){
+  const ph=getPhantom();
+  const st=document.getElementById('phantomStatus');
+  const opt=document.getElementById('phantomOpt');
+  if(ph){
+    if(S.wallet){st.textContent='Connected — click to disconnect';opt.style.borderColor='rgba(0,255,157,0.4)';}
+    else{st.textContent='Detected — click to connect ✓';opt.style.borderColor='rgba(0,212,255,0.4)';}
+  }else{
+    st.textContent='Not installed — click to install Phantom';
+    opt.style.borderColor='rgba(255,68,102,0.4)';
+  }
+  document.getElementById('wModal').classList.add('open');
 }
+
+function closeModal(){document.getElementById('wModal').classList.remove('open');}
+
+document.getElementById('wModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+async function connectPhantom(){
+  const ph=getPhantom();
+  if(!ph){showToast('Phantom not installed — opening phantom.com','warn');window.open('https://phantom.com','_blank');closeModal();return;}
+  if(S.wallet){closeModal();disconnect();return;}
+  closeModal();
+  const btn=document.getElementById('connectBtn');
+  try{
+    btn.textContent='⏳ CONNECTING...';btn.disabled=true;
+    const resp=await ph.connect();
+    const pub=resp.publicKey.toString();
+    S.wallet=pub;
+    const short=pub.slice(0,4)+'...'+pub.slice(-4);
+    setConnected(pub,short);
+    fetchBal(pub);
+    addLog(`PHANTOM CONNECTED — ${short}`,'success');
+    showToast(`Connected: ${short}`,'success');
+    logEngagement({type:'connect',addr:short,time:ts()});
+    ph.on('disconnect',()=>setDisconnected());
+    ph.on('accountChanged',(pk)=>{
+      if(pk){S.wallet=pk.toString();const s=pk.toString().slice(0,4)+'...'+pk.toString().slice(-4);setConnected(pk.toString(),s);fetchBal(pk.toString());addLog(`ACCOUNT CHANGED — ${s}`,'warn');}
+      else setDisconnected();
+    });
+  }catch(err){
+    btn.textContent='◈ CONNECT WALLET';btn.disabled=false;btn.className='connect-btn';
+    if(err.code===4001){showToast('Rejected by user','error');addLog('CONNECTION REJECTED','error');}
+    else{showToast('Error: '+(err.message||'Unknown'),'error');addLog('CONNECTION ERROR: '+(err.message||'?'),'error');}
+  }
+}
+
+function setConnected(pub,short){
+  const btn=document.getElementById('connectBtn');
+  btn.textContent='◈ '+short;btn.disabled=false;btn.className='connect-btn connected';
+  document.querySelectorAll('.demo-banner').forEach(b=>{b.classList.add('ok');const p=b.querySelector('p');if(p){p.innerHTML=`<strong>PHANTOM CONNECTED</strong> — ${short} on Solana Devnet`;}});
+  const ws=document.getElementById('wStatus');if(ws)ws.innerHTML=`<span class="mission-badge badge-active"><span class="pulse-dot"></span> CONNECTED</span>`;
+  const wa=document.getElementById('wAddr');if(wa)wa.textContent=short;
+  const db=document.getElementById('discBtn');if(db)db.style.display='inline-flex';
+}
+
+async function fetchBal(pub){
+  try{
+    const r=await fetch('https://api.devnet.solana.com',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'getBalance',params:[pub,{commitment:'confirmed'}]})});
+    const d=await r.json();
+    const lamps=d?.result?.value;
+    if(lamps!==undefined){const sol=(lamps/1e9).toFixed(4);const b=document.getElementById('wBal');if(b)b.textContent=sol+' SOL';addLog(`BALANCE: ${sol} SOL`,'info');}
+  }catch(e){addLog('BALANCE FETCH FAILED','warn');}
+}
+
+function disconnect(){
+  try{const ph=getPhantom();if(ph)ph.disconnect();}catch(e){}
+  setDisconnected();
+}
+
+function setDisconnected(){
+  S.wallet=null;
+  const btn=document.getElementById('connectBtn');
+  btn.textContent='◈ CONNECT WALLET';btn.disabled=false;btn.className='connect-btn';
+  document.querySelectorAll('.demo-banner').forEach(b=>{b.classList.remove('ok');const p=b.querySelector('p');if(p)p.innerHTML=`<strong>DEVNET MODE</strong> — Connect Phantom to go live.`;});
+  const ws=document.getElementById('wStatus');if(ws)ws.innerHTML=`<span class="mission-badge badge-pending"><span class="pulse-dot"></span> NOT CONNECTED</span>`;
+  const wa=document.getElementById('wAddr');if(wa)wa.textContent='NOT CONNECTED';
+  const wb=document.getElementById('wBal');if(wb)wb.textContent='-- SOL';
+  const db=document.getElementById('discBtn');if(db)db.style.display='none';
+  addLog('WALLET DISCONNECTED','warn');showToast('Wallet disconnected','info');
+}
+
+// Auto-reconnect if previously approved
+window.addEventListener('load',async()=>{
+  await new Promise(r=>setTimeout(r,300)); // wait for Phantom to inject
+  const ph=getPhantom();
+  if(!ph)return;
+  try{
+    const resp=await ph.connect({onlyIfTrusted:true}); // silent — no popup
+    const pub=resp.publicKey.toString();
+    S.wallet=pub;
+    const short=pub.slice(0,4)+'...'+pub.slice(-4);
+    setConnected(pub,short);
+    fetchBal(pub);
+    addLog(`AUTO-RECONNECTED — ${short}`,'success');
+    ph.on('disconnect',()=>setDisconnected());
+    ph.on('accountChanged',(pk)=>{if(pk){S.wallet=pk.toString();const s=pk.toString().slice(0,4)+'...'+pk.toString().slice(-4);setConnected(pk.toString(),s);fetchBal(pk.toString());}else setDisconnected();});
+  }catch(e){/* Not previously approved, that's fine */}
+});
 
 // ================================================================
 // AUCTION
-// ================================================================
-let countdownInterval = null;
-function deployAuction() {
-  const title = document.getElementById('auctionTitle').value.trim();
-  const desc = document.getElementById('auctionDesc').value.trim();
-  const dur = parseInt(document.getElementById('auctionDuration').value) || 300;
-  if (!title) { showToast('Enter a mission title','error'); return; }
-  const id = 'AUC-' + Math.random().toString(36).substr(2,6).toUpperCase();
-  const auction = { id, title, desc, duration: dur, endsAt: Date.now() + dur * 1000, bids: [], ended: false };
-  state.auctions.push(auction);
-  state.profile.auctions++;
-  updateProfileStats();
-  updateAuctionSelect();
-  renderActiveMissions();
-  addLog(`AUCTION DEPLOYED: ${title} (${id})`, 'success');
-  showToast('Auction deployed: ' + id, 'success');
-  addEngagement({ type: 'deploy', title, id, time: new Date().toLocaleTimeString() });
-  document.getElementById('auctionTitle').value = '';
-  document.getElementById('auctionDesc').value = '';
+function ts(){return new Date().toLocaleTimeString();}
+
+function deployAuction(){
+  const t=document.getElementById('aTitle').value.trim();
+  if(!t){showToast('Enter a mission title','error');return;}
+  const d=parseInt(document.getElementById('aDur').value)||300;
+  const id='AUC-'+Math.random().toString(36).substr(2,6).toUpperCase();
+  S.auctions.push({id,title:t,endsAt:Date.now()+d*1000,bids:[],ended:false});
+  S.prof.auctions++;updateProf();updateSel();renderMissions();
+  addLog(`DEPLOYED: ${t} (${id})`,'success');showToast('Auction deployed: '+id,'success');
+  logEngagement({type:'deploy',title:t,id,time:ts()});
+  document.getElementById('aTitle').value='';document.getElementById('aDesc').value='';
 }
 
-function updateAuctionSelect() {
-  const sel = document.getElementById('targetAuction');
-  sel.innerHTML = '<option value="">-- SELECT TARGET --</option>';
-  state.auctions.filter(a => !a.ended).forEach(a => {
-    sel.innerHTML += `<option value="${a.id}">${a.title} (${a.id})</option>`;
-  });
+function updateSel(){
+  const s=document.getElementById('targetAuction');
+  s.innerHTML='<option value="">-- SELECT TARGET --</option>';
+  S.auctions.filter(a=>!a.ended).forEach(a=>s.innerHTML+=`<option value="${a.id}">${a.title} (${a.id})</option>`);
 }
 
-function renderActiveMissions() {
-  const el = document.getElementById('activeMissions');
-  const active = state.auctions.filter(a => !a.ended);
-  if (!active.length) {
-    el.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-dim);font-family:\'Share Tech Mono\',monospace;font-size:0.75rem;letter-spacing:2px;">NO ACTIVE MISSIONS — DEPLOY ONE</div>';
-    return;
-  }
-  el.innerHTML = active.map(a => {
-    const rem = Math.max(0, Math.floor((a.endsAt - Date.now()) / 1000));
-    const mins = String(Math.floor(rem/60)).padStart(2,'0');
-    const secs = String(rem % 60).padStart(2,'0');
+function renderMissions(){
+  const el=document.getElementById('activeMissions');
+  const active=S.auctions.filter(a=>!a.ended);
+  if(!active.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-dim);font-family:Share Tech Mono,monospace;font-size:0.72rem;letter-spacing:2px;">NO ACTIVE MISSIONS — DEPLOY ONE</div>';return;}
+  el.innerHTML=active.map(a=>{
+    const rem=Math.max(0,Math.floor((a.endsAt-Date.now())/1000));
+    const m=String(Math.floor(rem/60)).padStart(2,'0'),sc=String(rem%60).padStart(2,'0');
     return `<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding:1rem;background:var(--bg);border:1px solid var(--border);margin-bottom:6px;">
-      <div>
-        <div style="font-family:'Orbitron',monospace;font-size:0.8rem;font-weight:700;color:var(--text-bright);">${a.title}</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--text-dim);">${a.id} · ${a.bids.length} BIDS</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <div><div style="font-family:Orbitron,monospace;font-size:0.78rem;font-weight:700;color:var(--text-bright);">${a.title}</div>
+      <div style="font-family:Share Tech Mono,monospace;font-size:0.62rem;color:var(--text-dim);">${a.id} · ${a.bids.length} BIDS</div></div>
+      <div style="display:flex;align-items:center;gap:1rem;">
         <span class="mission-badge badge-active"><span class="pulse-dot"></span> ACTIVE</span>
-        <span style="font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--accent);">${mins}:${secs}</span>
-      </div>
-    </div>`;
+        <span style="font-family:Orbitron,monospace;font-size:1rem;color:var(--accent);">${m}:${sc}</span>
+      </div></div>`;
   }).join('');
 }
 
-setInterval(() => {
-  state.auctions.forEach(a => {
-    if (!a.ended && Date.now() > a.endsAt) {
-      a.ended = true;
-      addLog(`AUCTION ENDED: ${a.id} — ${a.bids.length} sealed bids`, 'warn');
-    }
-  });
-  renderActiveMissions();
-}, 1000);
+setInterval(()=>{S.auctions.forEach(a=>{if(!a.ended&&Date.now()>a.endsAt){a.ended=true;addLog(`AUCTION ENDED: ${a.id}`,'warn');}});renderMissions();},1000);
 
-function submitBid() {
-  const id = document.getElementById('targetAuction').value;
-  const amt = parseFloat(document.getElementById('bidAmount').value);
-  if (!id) { showToast('Select a target auction','error'); return; }
-  if (!amt || amt <= 0) { showToast('Enter a valid bid amount','error'); return; }
-  const auction = state.auctions.find(a => a.id === id);
-  if (!auction || auction.ended) { showToast('Auction is no longer active','error'); return; }
-  const cipher = generateFakeCipher();
-  const bid = { auction: id, amount: amt, cipher, time: Date.now() };
-  auction.bids.push(bid);
-  state.bids.push(bid);
-  state.profile.bids++;
-  updateProfileStats();
-  addLog(`BID ENCRYPTED & SUBMITTED — ${cipher.substr(0,16)}...`, 'success');
-  showToast(`Bid of ${amt} SOL encrypted and fired!`, 'success');
-  addEngagement({ type: 'bid', id, cipher: cipher.substr(0,16), time: new Date().toLocaleTimeString() });
-  document.getElementById('bidAmount').value = '';
-}
-
-function generateFakeCipher() {
-  const hex = '0123456789abcdef';
-  return Array.from({length:64}, () => hex[Math.floor(Math.random()*16)]).join('');
+function submitBid(){
+  const id=document.getElementById('targetAuction').value;
+  const amt=parseFloat(document.getElementById('bidAmt').value);
+  if(!id){showToast('Select a target auction','error');return;}
+  if(!amt||amt<=0){showToast('Enter a valid bid amount','error');return;}
+  const a=S.auctions.find(x=>x.id===id);
+  if(!a||a.ended){showToast('Auction not active','error');return;}
+  const cipher=Array.from({length:64},()=>'0123456789abcdef'[Math.floor(Math.random()*16)]).join('');
+  a.bids.push({amt,cipher});S.prof.bids++;updateProf();
+  addLog(`BID FIRED — ${cipher.substr(0,16)}...`,'success');showToast(`${amt} SOL bid encrypted & fired!`,'success');
+  logEngagement({type:'bid',id,cipher:cipher.substr(0,16),time:ts()});
+  document.getElementById('bidAmt').value='';
 }
 
 // ================================================================
-// ENGAGEMENT HISTORY
-// ================================================================
-function addEngagement(e) {
-  const el = document.getElementById('engagementHistory');
-  if (el.querySelector('[data-empty]')) el.innerHTML = '';
-  const d = document.createElement('div');
-  d.style.cssText = 'display:flex;justify-content:space-between;padding:8px;background:var(--bg);border:1px solid var(--border);margin-bottom:4px;font-family:Share Tech Mono,monospace;font-size:0.7rem;flex-wrap:wrap;gap:6px;';
-  if (e.type === 'deploy') d.innerHTML = `<span style="color:var(--green);">✈ DEPLOYED ${e.id}</span><span style="color:var(--text-dim);">${e.time}</span>`;
-  else if (e.type === 'bid') d.innerHTML = `<span style="color:var(--accent);">🔐 BID ${e.cipher}...</span><span style="color:var(--text-dim);">${e.time}</span>`;
-  else if (e.type === 'quiz') d.innerHTML = `<span style="color:var(--gold);">🧠 QUIZ — ${e.score}/15 — ${e.rank}</span><span style="color:var(--text-dim);">${e.time}</span>`;
-  else if (e.type === 'game') d.innerHTML = `<span style="color:var(--purple);">🎮 TTT — ${e.result}</span><span style="color:var(--text-dim);">${e.time}</span>`;
+// ENGAGEMENT LOG
+function logEngagement(e){
+  const el=document.getElementById('engHistory');if(!el)return;
+  if(el.children.length===1&&el.children[0].textContent.includes('NO ENGAGE'))el.innerHTML='';
+  const d=document.createElement('div');
+  d.style.cssText='display:flex;justify-content:space-between;padding:8px;background:var(--bg);border:1px solid var(--border);margin-bottom:4px;font-family:Share Tech Mono,monospace;font-size:0.68rem;flex-wrap:wrap;gap:6px;';
+  if(e.type==='deploy')d.innerHTML=`<span style="color:var(--green);">✈ ${e.id}</span><span style="color:var(--text-dim);">${e.time}</span>`;
+  else if(e.type==='bid')d.innerHTML=`<span style="color:var(--accent);">🔐 ${e.cipher}...</span><span style="color:var(--text-dim);">${e.time}</span>`;
+  else if(e.type==='quiz')d.innerHTML=`<span style="color:var(--gold);">🧠 ${e.score}/15 — ${e.rank}</span><span style="color:var(--text-dim);">${e.time}</span>`;
+  else if(e.type==='game')d.innerHTML=`<span style="color:var(--purple);">🎮 TTT — ${e.result}</span><span style="color:var(--text-dim);">${e.time}</span>`;
+  else if(e.type==='connect')d.innerHTML=`<span style="color:var(--green);">◈ CONNECTED ${e.addr}</span><span style="color:var(--text-dim);">${e.time}</span>`;
   el.prepend(d);
 }
 
-function updateProfileStats() {
-  document.getElementById('profileAuctions').textContent = state.profile.auctions;
-  document.getElementById('profileBids').textContent = state.profile.bids;
-  document.getElementById('profileGames').textContent = state.ttt.scores.X;
-  if (state.profile.quizScore !== null) {
-    document.getElementById('profileQuizScore').textContent = state.profile.quizScore + '/15';
-    document.getElementById('profileRank').textContent = state.profile.rank;
-  }
+function updateProf(){
+  document.getElementById('pAuctions').textContent=S.prof.auctions;
+  document.getElementById('pBids').textContent=S.prof.bids;
+  document.getElementById('pGames').textContent=S.ttt.scores.X;
+  if(S.prof.quizScore!==null){document.getElementById('pQuiz').textContent=S.prof.quizScore+'/15';document.getElementById('pRank').textContent=S.prof.rank;}
 }
 
 // ================================================================
-// TIC TAC TOE
-// ================================================================
-const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+// TTT
+const WINS=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+function startTTT(){document.getElementById('gameSelect').style.display='none';document.getElementById('tttGame').style.display='block';resetTTT();}
+function exitTTT(){document.getElementById('tttGame').style.display='none';document.getElementById('gameSelect').style.display='block';}
 
-function startTTT() {
-  document.getElementById('gameSelect').style.display = 'none';
-  document.getElementById('tttGame').style.display = 'block';
-  resetTTT();
-}
-function exitTTT() {
-  document.getElementById('tttGame').style.display = 'none';
-  document.getElementById('gameSelect').style.display = 'block';
+function resetTTT(){
+  S.ttt.board=Array(9).fill(null);S.ttt.running=true;
+  document.querySelectorAll('.ttt-cell').forEach((c,i)=>{c.textContent='';c.className='ttt-cell';c.onclick=()=>tttMove(i);});
+  const st=document.getElementById('tttStatus');st.textContent='YOUR MOVE — YOU ARE ✕';st.style.color='var(--accent)';
 }
 
-function resetTTT() {
-  state.ttt.board = Array(9).fill(null);
-  state.ttt.xTurn = true;
-  state.ttt.running = true;
-  document.querySelectorAll('.ttt-cell').forEach(c => {
-    c.textContent = '';
-    c.className = 'ttt-cell';
-    c.onclick = function() { tttMove(parseInt(this.dataset.idx)); };
-  });
-  const cells = document.querySelectorAll('.ttt-cell');
-  cells.forEach((c,i) => c.dataset.idx = i);
-  document.getElementById('tttStatus').textContent = 'YOUR MOVE — YOU ARE ✕';
-  document.getElementById('tttStatus').style.color = 'var(--accent)';
+function tttMove(i){
+  if(!S.ttt.running||S.ttt.board[i])return;
+  S.ttt.board[i]='X';renderBoard();
+  const w=checkWin('X');if(w){endTTT('X',w);return;}
+  if(S.ttt.board.every(c=>c)){endTTT('D',[]);return;}
+  const st=document.getElementById('tttStatus');st.textContent='⚙ AI COMPUTING...';st.style.color='var(--gold)';
+  setTimeout(aiMove,550);
 }
 
-function tttMove(i) {
-  if (!state.ttt.running || state.ttt.board[i]) return;
-  state.ttt.board[i] = 'X';
-  renderBoard();
-  const win = checkWin('X');
-  if (win) { endTTT('X', win); return; }
-  if (state.ttt.board.every(c => c)) { endTTT('D', []); return; }
-  document.getElementById('tttStatus').textContent = '⚙ AI COMPUTING MOVE...';
-  document.getElementById('tttStatus').style.color = 'var(--gold)';
-  setTimeout(() => aiMove(), 600);
+function aiMove(){
+  const emp=S.ttt.board.reduce((a,v,i)=>v?a:[...a,i],[]);
+  if(!emp.length)return;
+  let best=-Infinity,mv=emp[0];
+  emp.forEach(i=>{S.ttt.board[i]='O';const sc=mm(false,0);S.ttt.board[i]=null;if(sc>best){best=sc;mv=i;}});
+  S.ttt.board[mv]='O';renderBoard();
+  const w=checkWin('O');if(w){endTTT('O',w);return;}
+  if(S.ttt.board.every(c=>c)){endTTT('D',[]);return;}
+  const st=document.getElementById('tttStatus');st.textContent='YOUR MOVE — YOU ARE ✕';st.style.color='var(--accent)';
 }
 
-function aiMove() {
-  const empty = state.ttt.board.reduce((acc,v,i) => v ? acc : [...acc,i], []);
-  if (!empty.length) return;
-  // minimax
-  let best = -Infinity, move = empty[0];
-  empty.forEach(i => {
-    state.ttt.board[i] = 'O';
-    const s = minimax(false, 0);
-    state.ttt.board[i] = null;
-    if (s > best) { best = s; move = i; }
-  });
-  state.ttt.board[move] = 'O';
-  renderBoard();
-  const win = checkWin('O');
-  if (win) { endTTT('O', win); return; }
-  if (state.ttt.board.every(c => c)) { endTTT('D', []); return; }
-  document.getElementById('tttStatus').textContent = 'YOUR MOVE — YOU ARE ✕';
-  document.getElementById('tttStatus').style.color = 'var(--accent)';
+function mm(isMax,d){
+  if(checkWin('O'))return 10-d;if(checkWin('X'))return d-10;
+  const emp=S.ttt.board.reduce((a,v,i)=>v?a:[...a,i],[]);if(!emp.length)return 0;
+  if(isMax){let b=-Infinity;emp.forEach(i=>{S.ttt.board[i]='O';b=Math.max(b,mm(false,d+1));S.ttt.board[i]=null;});return b;}
+  else{let b=Infinity;emp.forEach(i=>{S.ttt.board[i]='X';b=Math.min(b,mm(true,d+1));S.ttt.board[i]=null;});return b;}
 }
 
-function minimax(isMax, depth) {
-  if (checkWin('O')) return 10 - depth;
-  if (checkWin('X')) return depth - 10;
-  const empty = state.ttt.board.reduce((acc,v,i) => v ? acc : [...acc,i], []);
-  if (!empty.length) return 0;
-  if (isMax) {
-    let best = -Infinity;
-    empty.forEach(i => { state.ttt.board[i]='O'; best=Math.max(best,minimax(false,depth+1)); state.ttt.board[i]=null; });
-    return best;
-  } else {
-    let best = Infinity;
-    empty.forEach(i => { state.ttt.board[i]='X'; best=Math.min(best,minimax(true,depth+1)); state.ttt.board[i]=null; });
-    return best;
-  }
-}
+function checkWin(p){return WINS.find(w=>w.every(i=>S.ttt.board[i]===p))||null;}
 
-function checkWin(p) {
-  return WINS.find(w => w.every(i => state.ttt.board[i] === p)) || null;
-}
-
-function renderBoard() {
-  const cells = document.querySelectorAll('.ttt-cell');
-  state.ttt.board.forEach((v,i) => {
-    cells[i].textContent = v === 'X' ? '✕' : v === 'O' ? '○' : '';
-    cells[i].className = 'ttt-cell' + (v ? ` ${v.toLowerCase()} taken` : '');
+function renderBoard(){
+  document.querySelectorAll('.ttt-cell').forEach((c,i)=>{
+    c.textContent=S.ttt.board[i]==='X'?'✕':S.ttt.board[i]==='O'?'○':'';
+    c.className='ttt-cell'+(S.ttt.board[i]?` ${S.ttt.board[i].toLowerCase()} taken`:'');
+    c.onclick=S.ttt.board[i]?null:()=>tttMove(i);
   });
 }
 
-function endTTT(result, winLine) {
-  state.ttt.running = false;
-  const status = document.getElementById('tttStatus');
-  if (result === 'D') {
-    state.ttt.scores.D++;
-    status.textContent = '⚖ DRAW — PROTOCOL STALEMATE';
-    status.style.color = 'var(--text-dim)';
-    showToast('Draw! Well played.','info');
-    addEngagement({ type:'game', result:'DRAW', time: new Date().toLocaleTimeString() });
-  } else if (result === 'X') {
-    state.ttt.scores.X++;
-    state.profile.wins++;
-    status.textContent = '🏆 VICTORY — YOU WIN!';
-    status.style.color = 'var(--green)';
-    showToast('You defeated the AI!','success');
-    addEngagement({ type:'game', result:'WIN', time: new Date().toLocaleTimeString() });
-    if (winLine) { const cells = document.querySelectorAll('.ttt-cell'); winLine.forEach(i => cells[i].classList.add('win')); }
-  } else {
-    state.ttt.scores.O++;
-    status.textContent = '💀 DEFEATED — AI WINS';
-    status.style.color = 'var(--red)';
-    showToast('AI wins this round.','error');
-    addEngagement({ type:'game', result:'LOSS', time: new Date().toLocaleTimeString() });
-    if (winLine) { const cells = document.querySelectorAll('.ttt-cell'); winLine.forEach(i => cells[i].style.borderColor = 'var(--gold)'); }
-  }
-  document.getElementById('scoreX').textContent = state.ttt.scores.X;
-  document.getElementById('scoreO').textContent = state.ttt.scores.O;
-  document.getElementById('scoreDraw').textContent = state.ttt.scores.D;
-  updateProfileStats();
+function endTTT(result,wl){
+  S.ttt.running=false;
+  const st=document.getElementById('tttStatus');
+  if(result==='D'){S.ttt.scores.D++;st.textContent='⚖ DRAW';st.style.color='var(--text-dim)';showToast('Draw!','info');logEngagement({type:'game',result:'DRAW',time:ts()});}
+  else if(result==='X'){S.ttt.scores.X++;st.textContent='🏆 VICTORY!';st.style.color='var(--green)';showToast('You beat the AI!','success');logEngagement({type:'game',result:'WIN',time:ts()});if(wl){const cs=document.querySelectorAll('.ttt-cell');wl.forEach(i=>cs[i].classList.add('win'));}}
+  else{S.ttt.scores.O++;st.textContent='💀 AI WINS';st.style.color='var(--red)';showToast('AI wins this round','error');logEngagement({type:'game',result:'LOSS',time:ts()});if(wl){const cs=document.querySelectorAll('.ttt-cell');wl.forEach(i=>cs[i].style.borderColor='var(--gold)');}}
+  document.getElementById('scoreX').textContent=S.ttt.scores.X;
+  document.getElementById('scoreO').textContent=S.ttt.scores.O;
+  document.getElementById('scoreD').textContent=S.ttt.scores.D;
+  updateProf();
+}
+
+function wagerMode(){
+  if(!S.wallet){showToast('Connect Phantom first to enable wager mode!','warn');openModal();}
+  else showToast('0.01 SOL wager placed on this match!','success');
 }
 
 // ================================================================
 // QUIZ
-// ================================================================
-const QUESTIONS = [
-  { q: "What does MPC stand for in the context of Arcium?", opts: ["Multi-Party Computation","Multi-Protocol Cryptography","Maximum Privacy Contract","Multi-Point Consensus"], a: 0 },
-  { q: "In Arcium's sealed-bid auction, where does encryption take place?", opts: ["On the Solana validator nodes","In Arcium's MPC servers","In the user's browser, client-side","On the program account"], a: 2 },
-  { q: "What does ZKP stand for?", opts: ["Zero Knowledge Protocol","Zero Key Pair","Zero Knowledge Proof","Zonal Key Privacy"], a: 2 },
-  { q: "What blockchain does Arcium's hackathon demo run on?", opts: ["Ethereum","Bitcoin","Solana","Avalanche"], a: 2 },
-  { q: "In Arcium's MPC network, how is a secret value distributed?", opts: ["Encrypted and sent to one node","Split into shares held by multiple nodes","Hashed and stored on-chain","Sent through a VPN tunnel"], a: 1 },
-  { q: "What framework is used to write Solana programs in Arcium's demo?", opts: ["Hardhat","Truffle","Anchor","Foundry"], a: 2 },
-  { q: "What programming language is used for the Solana smart contract?", opts: ["Go","TypeScript","Python","Rust"], a: 3 },
-  { q: "What is stored on-chain in Arcium's auction system instead of bid amounts?", opts: ["Encrypted ciphertext","Hashed bid values","Zero-knowledge proofs","Merkle tree roots"], a: 0 },
-  { q: "What is the main advantage of sealed-bid auctions over traditional on-chain auctions?", opts: ["Lower gas fees","Faster settlement","Prevents sniping and bid manipulation","Better UI/UX"], a: 2 },
-  { q: "What does MXE stand for in Arcium's protocol?", opts: ["Multi-Exchange Environment","Multi-Party Execution Environment","Maximum Encryption Extension","Modular Execution Engine"], a: 1 },
-  { q: "Which wallet is integrated in Arcium's auction demo for Solana?", opts: ["MetaMask","Coinbase Wallet","Phantom","Solflare"], a: 2 },
-  { q: "What does the acronym 'ARCIS DSL' refer to?", opts: ["Arcium's Domain-Specific Language for MPC circuits","Advanced Routing Cryptography Interface System","Automatic Runtime Compiler for Integrated Solana","None of the above"], a: 0 },
-  { q: "In a 3-node MPC setup, how many nodes must collude to learn a secret?", opts: ["1","2","3 (all of them)","0"], a: 2 },
-  { q: "What is the output of Arcium's MPC winner computation?", opts: ["All bid amounts ranked","The winning bid amount","Only the winner's public key","A zero-knowledge proof of all bids"], a: 2 },
-  { q: "What happens to losing bids in Arcium's sealed auction after the winner is revealed?", opts: ["They are deleted from chain","They are revealed for transparency","They remain encrypted on-chain forever","They are refunded via a separate transaction"], a: 2 },
+const QS=[
+  {q:"What does MPC stand for in the context of Arcium?",opts:["Multi-Party Computation","Multi-Protocol Cryptography","Maximum Privacy Contract","Multi-Point Consensus"],a:0},
+  {q:"In Arcium's sealed-bid auction, where does encryption take place?",opts:["On Solana validator nodes","In Arcium's MPC servers","In the user's browser","On the program account"],a:2},
+  {q:"What does ZKP stand for?",opts:["Zero Knowledge Protocol","Zero Key Pair","Zero Knowledge Proof","Zonal Key Privacy"],a:2},
+  {q:"Which blockchain does Arcium's hackathon demo use?",opts:["Ethereum","Bitcoin","Solana","Avalanche"],a:2},
+  {q:"How is a secret value distributed in Arcium's MPC network?",opts:["Encrypted and sent to one node","Split into shares across multiple nodes","Hashed and stored on-chain","Sent through a VPN tunnel"],a:1},
+  {q:"What framework is used to write Solana programs in Arcium's demo?",opts:["Hardhat","Truffle","Anchor","Foundry"],a:2},
+  {q:"What programming language is used for the Solana smart contract?",opts:["Go","TypeScript","Python","Rust"],a:3},
+  {q:"What is stored on-chain instead of raw bid amounts?",opts:["Encrypted ciphertext","Hashed bid values","Zero-knowledge proofs","Merkle tree roots"],a:0},
+  {q:"What is the main advantage of sealed-bid auctions over traditional on-chain auctions?",opts:["Lower gas fees","Faster settlement","Prevents sniping and bid manipulation","Better user interface"],a:2},
+  {q:"What does MXE stand for in Arcium's protocol?",opts:["Multi-Exchange Environment","Multi-Party Execution Environment","Maximum Encryption Extension","Modular Execution Engine"],a:1},
+  {q:"Which wallet is used in Arcium's auction demo?",opts:["MetaMask","Coinbase Wallet","Phantom","Solflare"],a:2},
+  {q:"What does ARCIS DSL refer to?",opts:["Arcium's Domain-Specific Language for MPC circuits","Advanced Routing Cryptography Interface System","Automatic Runtime Compiler for Integrated Solana","None of the above"],a:0},
+  {q:"In a 3-node MPC setup, how many nodes must collude to learn a secret?",opts:["1 node","2 nodes","All 3 nodes","0 nodes"],a:2},
+  {q:"What is the output of Arcium's MPC winner computation?",opts:["All bid amounts ranked","The winning bid amount","Only the winner's public key","A ZK proof of all bids"],a:2},
+  {q:"What happens to losing bids after the auction winner is revealed?",opts:["Deleted from chain","Revealed for transparency","Remain encrypted on-chain forever","Refunded automatically"],a:2},
 ];
 
-function startQuiz() {
-  state.quiz = { current: 0, score: 0, answers: [], timer: null, timeLeft: 20, totalTime: 0, startTime: Date.now() };
-  document.getElementById('quizIntro').style.display = 'none';
-  document.getElementById('quizActive').style.display = 'block';
-  document.getElementById('quizResults').style.display = 'none';
-  showQuestion();
+function startQuiz(){
+  S.quiz={i:0,score:0,answers:[],timer:null,tLeft:20,t0:Date.now()};
+  document.getElementById('quizIntro').style.display='none';
+  document.getElementById('quizActive').style.display='block';
+  document.getElementById('quizResults').style.display='none';
+  showQ();
 }
 
-function showQuestion() {
-  const q = QUESTIONS[state.quiz.current];
-  document.getElementById('qNum').textContent = state.quiz.current + 1;
-  document.getElementById('qScore').textContent = state.quiz.score;
-  document.getElementById('qTotal').textContent = state.quiz.current;
-  document.getElementById('qProgress').style.width = ((state.quiz.current / 15) * 100) + '%';
-  document.getElementById('nextBtn').style.display = 'none';
-
-  const letters = ['A','B','C','D'];
-  document.getElementById('questionBox').innerHTML = `
+function showQ(){
+  const q=QS[S.quiz.i];
+  document.getElementById('qNum').textContent=S.quiz.i+1;
+  document.getElementById('qScore').textContent=S.quiz.score;
+  document.getElementById('qProgress').style.width=((S.quiz.i/15)*100)+'%';
+  document.getElementById('nextBtn').style.display='none';
+  const L=['A','B','C','D'];
+  document.getElementById('questionBox').innerHTML=`
     <div class="question-card">
-      <div class="question-num">QUESTION ${state.quiz.current + 1} / 15</div>
+      <div class="question-num">QUESTION ${S.quiz.i+1} / 15</div>
       <div class="question-text">${q.q}</div>
       <div class="answer-options">
-        ${q.opts.map((o,i) => `<div class="answer-opt" onclick="selectAnswer(${i})" data-idx="${i}">
-          <span class="opt-letter">${letters[i]}</span>${o}
-        </div>`).join('')}
+        ${q.opts.map((o,i)=>`<div class="answer-opt" onclick="pickA(${i})"><span class="opt-letter">${L[i]}</span>${o}</div>`).join('')}
       </div>
     </div>`;
-
-  // Timer
-  state.quiz.timeLeft = 20;
-  const timerEl = document.getElementById('qTimer');
-  timerEl.textContent = 20;
-  timerEl.className = 'quiz-timer';
-  clearInterval(state.quiz.timer);
-  state.quiz.timer = setInterval(() => {
-    state.quiz.timeLeft--;
-    timerEl.textContent = state.quiz.timeLeft;
-    if (state.quiz.timeLeft <= 5) timerEl.className = 'quiz-timer low';
-    if (state.quiz.timeLeft <= 0) {
-      clearInterval(state.quiz.timer);
-      timeOut();
-    }
-  }, 1000);
+  S.quiz.tLeft=20;
+  const te=document.getElementById('qTimer');te.textContent=20;te.className='quiz-timer';
+  clearInterval(S.quiz.timer);
+  S.quiz.timer=setInterval(()=>{
+    S.quiz.tLeft--;te.textContent=S.quiz.tLeft;
+    if(S.quiz.tLeft<=5)te.className='quiz-timer low';
+    if(S.quiz.tLeft<=0){clearInterval(S.quiz.timer);timeoutQ();}
+  },1000);
 }
 
-function selectAnswer(idx) {
-  clearInterval(state.quiz.timer);
-  const q = QUESTIONS[state.quiz.current];
-  const opts = document.querySelectorAll('.answer-opt');
-  opts.forEach(o => { o.classList.add('disabled'); o.onclick = null; });
-  if (idx === q.a) {
-    opts[idx].classList.add('correct');
-    state.quiz.score++;
-    state.quiz.answers.push('correct');
-  } else {
-    opts[idx].classList.add('wrong');
-    opts[q.a].classList.add('correct');
-    state.quiz.answers.push('wrong');
-  }
-  document.getElementById('nextBtn').style.display = 'inline-flex';
+function pickA(idx){
+  clearInterval(S.quiz.timer);
+  const q=QS[S.quiz.i];
+  const opts=document.querySelectorAll('.answer-opt');
+  opts.forEach(o=>{o.classList.add('disabled');o.onclick=null;});
+  if(idx===q.a){opts[idx].classList.add('correct');S.quiz.score++;S.quiz.answers.push('correct');}
+  else{opts[idx].classList.add('wrong');opts[q.a].classList.add('correct');S.quiz.answers.push('wrong');}
+  document.getElementById('nextBtn').style.display='inline-flex';
 }
 
-function timeOut() {
-  const q = QUESTIONS[state.quiz.current];
-  const opts = document.querySelectorAll('.answer-opt');
-  opts.forEach(o => { o.classList.add('disabled'); o.onclick = null; });
-  opts[q.a].classList.add('correct');
-  state.quiz.answers.push('timeout');
-  document.getElementById('nextBtn').style.display = 'inline-flex';
+function timeoutQ(){
+  const q=QS[S.quiz.i];
+  const opts=document.querySelectorAll('.answer-opt');
+  opts.forEach(o=>{o.classList.add('disabled');o.onclick=null;});
+  opts[q.a].classList.add('correct');S.quiz.answers.push('timeout');
+  document.getElementById('nextBtn').style.display='inline-flex';
 }
 
-function nextQuestion() {
-  state.quiz.current++;
-  if (state.quiz.current >= 15) { showResults(); return; }
-  showQuestion();
+function nextQ(){
+  S.quiz.i++;if(S.quiz.i>=15){finishQuiz();return;}showQ();
 }
 
-function showResults() {
-  clearInterval(state.quiz.timer);
-  document.getElementById('quizActive').style.display = 'none';
-  const score = state.quiz.score;
-  const totalTime = Math.round((Date.now() - state.quiz.startTime) / 1000);
-  const correct = state.quiz.answers.filter(a => a === 'correct').length;
-  const wrong = state.quiz.answers.filter(a => a === 'wrong').length;
-  const timeout = state.quiz.answers.filter(a => a === 'timeout').length;
-
-  let rank, rankMsg;
-  if (score >= 14) { rank = 'LEGEND'; rankMsg = "Extraordinary. You ARE the Arcium protocol. Core team should be calling."; }
-  else if (score >= 11) { rank = 'COMMANDER'; rankMsg = "Impressive crypto mastery. You know your MPC from your ZKP — and then some."; }
-  else if (score >= 8) { rank = 'WARRIOR'; rankMsg = "Solid operative. You understand the battlefield and fight well in the cryptographic trenches."; }
-  else if (score >= 5) { rank = 'SOLDIER'; rankMsg = "Enlisted and capable. Keep studying the protocol — you're on the right path."; }
-  else { rank = 'RECRUIT'; rankMsg = "Training begins now, recruit. Read the Arcium docs and redeploy. The protocol demands excellence."; }
-
-  state.profile.quizScore = score;
-  state.profile.rank = rank;
-  updateProfileStats();
-  addEngagement({ type:'quiz', score, rank, time: new Date().toLocaleTimeString() });
-
-  const pct = Math.round((score / 15) * 100);
-  const resultsEl = document.getElementById('quizResults');
-  resultsEl.style.display = 'block';
-  resultsEl.innerHTML = `
+function finishQuiz(){
+  clearInterval(S.quiz.timer);
+  document.getElementById('quizActive').style.display='none';
+  const sc=S.quiz.score;
+  const totalT=Math.round((Date.now()-S.quiz.t0)/1000);
+  const correct=S.quiz.answers.filter(a=>a==='correct').length;
+  const wrong=S.quiz.answers.filter(a=>a==='wrong').length;
+  const timeout=S.quiz.answers.filter(a=>a==='timeout').length;
+  let rank,msg;
+  if(sc>=14){rank='LEGEND';msg='Extraordinary. You ARE the Arcium protocol. Core team should be calling you.';}
+  else if(sc>=11){rank='COMMANDER';msg='Impressive crypto mastery. You know MPC from ZKP — and then some.';}
+  else if(sc>=8){rank='WARRIOR';msg='Solid operative. You understand the battlefield and fight well in the cryptographic trenches.';}
+  else if(sc>=5){rank='SOLDIER';msg='Enlisted and capable. Keep studying the protocol — you\'re on the right path.';}
+  else{rank='RECRUIT';msg='Training begins now, recruit. Read the Arcium docs and redeploy. The protocol demands excellence.';}
+  S.prof.quizScore=sc;S.prof.rank=rank;updateProf();
+  logEngagement({type:'quiz',score:sc,rank,time:ts()});
+  const pct=Math.round((sc/15)*100);
+  const el=document.getElementById('quizResults');
+  el.style.display='block';
+  el.innerHTML=`
     <div class="results-card">
       <span class="rank-badge rank-${rank}">${rank}</span>
-      <div class="result-score">${score}<span style="font-size:2rem;color:var(--text-dim)">/15</span></div>
+      <div class="result-score">${sc}<span style="font-size:2rem;color:var(--text-dim)">/15</span></div>
       <div class="result-label">FINAL SCORE — ${pct}% ACCURACY</div>
-      <div class="result-msg">${rankMsg}</div>
+      <div class="result-msg">${msg}</div>
       <div class="result-breakdown">
         <div class="rb-item rb-correct"><div class="rb-val">${correct}</div><div class="rb-lbl">Correct</div></div>
         <div class="rb-item rb-wrong"><div class="rb-val">${wrong}</div><div class="rb-lbl">Wrong</div></div>
         <div class="rb-item rb-skip"><div class="rb-val">${timeout}</div><div class="rb-lbl">Timeout</div></div>
-        <div class="rb-item rb-time"><div class="rb-val">${totalTime}s</div><div class="rb-lbl">Total Time</div></div>
+        <div class="rb-item rb-time"><div class="rb-val">${totalT}s</div><div class="rb-lbl">Total Time</div></div>
       </div>
-      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-        <button class="btn btn-primary" onclick="retakeQuiz()">↺ REDEPLOY</button>
-        <button class="btn btn-secondary" onclick="showSection('profile')">📋 VIEW PROFILE</button>
-        <button class="btn btn-gold" onclick="showSection('games')">🎮 ARCADE</button>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="retakeQuiz()">↺ RETRY MISSION</button>
+        <button class="btn btn-secondary" onclick="go('profile')">📋 VIEW PROFILE</button>
+        <button class="btn btn-gold" onclick="go('games')">🎮 ARCADE</button>
       </div>
     </div>`;
 }
 
-function retakeQuiz() {
-  document.getElementById('quizResults').style.display = 'none';
-  document.getElementById('quizIntro').style.display = 'block';
-}
-
-// ================================================================
-// INIT
-// ================================================================
-window.addEventListener('load', () => {
-  // reset board data attrs
-  document.querySelectorAll('.ttt-cell').forEach((c,i) => c.dataset.idx = i);
-});
+function retakeQuiz(){document.getElementById('quizResults').style.display='none';document.getElementById('quizIntro').style.display='block';}
 </script>
 </body>
 </html>
