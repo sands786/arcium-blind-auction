@@ -426,6 +426,14 @@ nav a:hover,nav a.active{
   transform:translateY(-2px);
   box-shadow:0 0 20px rgba(139,92,246,0.4);
 }
+.btn-twitter{
+  background:linear-gradient(135deg,#1da1f2,#0d7fc4);
+  color:#fff;
+}
+.btn-twitter:hover{
+  transform:translateY(-2px);
+  box-shadow:0 0 20px rgba(29,161,242,0.4);
+}
 .btn-full{
   width:100%;
   justify-content:center;
@@ -1158,6 +1166,26 @@ nav a:hover,nav a.active{
 .rb-wrong .rb-val{color:var(--error);}
 .rb-skip .rb-val{color:var(--neon-cyan);}
 .rb-time .rb-val{color:var(--neon-purple);}
+
+/* Share Section */
+.share-section{
+  margin-top:2rem;
+  padding-top:2rem;
+  border-top:1px solid var(--border-subtle);
+}
+.share-title{
+  font-size:0.8rem;
+  color:var(--text-muted);
+  margin-bottom:1rem;
+  text-transform:uppercase;
+  letter-spacing:2px;
+}
+.share-buttons{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
 
 /* Profile */
 .profile-header{
@@ -1974,7 +2002,7 @@ footer{
 
   <div class="demo-banner" id="bannerGames">
     <span style="font-size:1.25rem;">💡</span>
-    <p>Wager modes need <strong>Devnet SOL</strong>. Get some free at <a href="https://faucet.solana.com" target="_blank" style="color:inherit;font-weight:600;">faucet.solana.com</a> then connect Phantom.</p>
+    <p>Wager modes need strong>Devnet SOL</strong>. Get some free at <a href="https://faucet.solana.com" target="_blank" style="color:inherit;font-weight:600;">faucet.solana.com</a> then connect Phantom.</p>
   </div>
 
   <div id="gameSelect">
@@ -2743,6 +2771,20 @@ function nextQ(){
   S.quiz.i++;if(S.quiz.i>=15){finishQuiz();return;}showQ();
 }
 
+function shareOnTwitter(score, rank, pct) {
+  const text = `I just scored ${score}/15 (${pct}%) on the Arcium Intel Quiz and earned the rank of ${rank}! 🎯
+
+Test your knowledge of MPC, ZK cryptography, and confidential computing. Can you beat my score?
+
+@ArciumHQ @husnain50376345`;
+  
+  const url = 'https://arcium-blind-auction.vercel.app';
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+  
+  window.open(twitterUrl, '_blank', 'width=600,height=400');
+  showToast('Opening Twitter...', 'info');
+}
+
 function finishQuiz(){
   clearInterval(S.quiz.timer);
   document.getElementById('quizActive').style.display='none';
@@ -2758,7 +2800,6 @@ function finishQuiz(){
   else if(sc>=5){rank='SOLDIER';msg='Enlisted and capable. Keep studying the protocol — you\'re on the right path.';}
   else{rank='RECRUIT';msg='Training begins now, recruit. Read the Arcium docs and redeploy. The protocol demands excellence.';}
   S.prof.quizScore=sc;S.prof.rank=rank;updateProf();
-  logEngagement({type:'quiz',score:sc,rank,time:ts()});
   const pct=Math.round((sc/15)*100);
   const el=document.getElementById('quizResults');
   el.style.display='block';
@@ -2779,7 +2820,32 @@ function finishQuiz(){
         <button class="btn btn-outline" onclick="go('profile')">📋 View Profile</button>
         <button class="btn btn-gold" onclick="go('games')">🎮 Arcade</button>
       </div>
+      <div class="share-section">
+        <div class="share-title">Share Your Achievement</div>
+        <div class="share-buttons">
+          <button class="btn btn-twitter" onclick="shareOnTwitter(${sc}, '${rank}', ${pct})">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.629L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            Share on X
+          </button>
+          <button class="btn btn-outline" onclick="copyResults(${sc}, '${rank}', ${pct})">
+            📋 Copy Results
+          </button>
+        </div>
+      </div>
     </div>`;
+}
+
+function copyResults(score, rank, pct) {
+  const text = `Arcium Intel Quiz Results:
+Score: ${score}/15 (${pct}%)
+Rank: ${rank}
+Test your knowledge: https://arcium-blind-auction.vercel.app`;
+  
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Results copied to clipboard!', 'success');
+  }).catch(() => {
+    showToast('Failed to copy', 'error');
+  });
 }
 
 function retakeQuiz(){document.getElementById('quizResults').style.display='none';document.getElementById('quizIntro').style.display='block';}
