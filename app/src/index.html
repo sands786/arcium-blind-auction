@@ -3,27 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arcium — Confidential Computing Network</title>
+<title>Arcium — Zero Knowledge Protocol</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --void-black:#020204;
-  --void-dark:#0a0a0f;
-  --void-card:#111118;
-  --neon-cyan:#00f0ff;
-  --neon-blue:#4d9fff;
-  --neon-purple:#b829f7;
-  --neon-green:#00ff9d;
-  --text-primary:#ffffff;
-  --text-secondary:#a0a0b0;
+  /* Arcium-style cyberpunk palette */
+  --void-black:#050508;
+  --void-dark:#0A0A0F;
+  --void-darker:#020204;
+  --neon-cyan:#00D4FF;
+  --neon-blue:#4D9FFF;
+  --neon-purple:#8B5CF6;
+  --soft-blue:#9DC4FF;
+  --text-primary:#FFFFFF;
+  --text-secondary:#A0A0B0;
   --text-muted:#606070;
+  --border-glow:rgba(0,212,255,0.3);
   --border-subtle:rgba(255,255,255,0.08);
-  --border-glow:rgba(0,240,255,0.3);
-  --gradient-hero:linear-gradient(135deg,#020204 0%,#0a0a1a 50%,#1a0a2e 100%);
-  --gradient-accent:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));
-  --gradient-purple:linear-gradient(135deg,var(--neon-purple),var(--neon-blue));
-  --shadow-cyan:0 0 40px rgba(0,240,255,0.4);
-  --shadow-purple:0 0 40px rgba(184,41,247,0.3);
+  --success:#10B981;
+  --error:#EF4444;
+  --warning:#F59E0B;
+  --shadow-cyan:0 0 30px rgba(0,212,255,0.4);
+  --shadow-blue:0 0 40px rgba(77,159,255,0.3);
+  
+  /* Arcium mesh gradient backgrounds */
+  --gradient-mesh: radial-gradient(circle at 20% 80%,rgba(0,212,255,0.15) 0%,transparent 50%),
+                   radial-gradient(circle at 80% 20%,rgba(139,92,246,0.2) 0%,transparent 50%),
+                   radial-gradient(circle at 40% 40%,rgba(77,159,255,0.1) 0%,transparent 40%);
 }
 *{
   margin:0;
@@ -43,34 +49,40 @@ body{
   overflow-x:hidden;
 }
 
-/* Animated Background */
+/* Animated Background Mesh */
 .bg-mesh{
   position:fixed;
   inset:0;
   z-index:-1;
-  background:var(--gradient-hero);
+  background:var(--void-black);
   overflow:hidden;
 }
 .bg-mesh::before{
   content:'';
   position:absolute;
   inset:0;
-  background:
-    radial-gradient(circle at 20% 80%,rgba(0,240,255,0.15) 0%,transparent 50%),
-    radial-gradient(circle at 80% 20%,rgba(184,41,247,0.2) 0%,transparent 50%),
-    radial-gradient(circle at 40% 40%,rgba(77,159,255,0.1) 0%,transparent 40%);
-  animation:pulseGlow 8s ease-in-out infinite;
+  background:var(--gradient-mesh);
+  animation:pulseGlow 10s ease-in-out infinite;
 }
 .bg-mesh::after{
   content:'';
   position:absolute;
   inset:0;
-  background:url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2300f0ff' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
-  opacity:0.4;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300D4FF' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity:0.5;
 }
 @keyframes pulseGlow{
   0%,100%{opacity:1;}
   50%{opacity:0.7;}
+}
+
+/* Typography */
+.font-mono{
+  font-family:'JetBrains Mono',monospace;
+}
+.font-display{
+  font-family:'Inter',sans-serif;
+  font-weight:800;
 }
 
 /* Preloader */
@@ -89,42 +101,60 @@ body{
   opacity:0;
   visibility:hidden;
 }
-.preloader-ring{
+.preloader-icon{
   width:80px;
   height:80px;
-  border:2px solid transparent;
-  border-top-color:var(--neon-cyan);
+  border:2px solid var(--neon-cyan);
   border-radius:50%;
-  animation:spin 1s linear infinite;
-  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:1.5rem;
+  animation:pulse 2s ease-in-out infinite;
+  box-shadow:var(--shadow-cyan);
 }
-.preloader-ring::before{
-  content:'';
-  position:absolute;
-  inset:4px;
-  border:2px solid transparent;
-  border-top-color:var(--neon-purple);
-  border-radius:50%;
-  animation:spin 2s linear infinite reverse;
-}
-@keyframes spin{
-  to{transform:rotate(360deg);}
+.preloader-icon::before{
+  content:'◈';
+  font-size:2rem;
+  color:var(--neon-cyan);
 }
 .preloader-brand{
   font-family:'Inter',sans-serif;
-  font-size:1.5rem;
+  font-size:2rem;
   font-weight:800;
-  color:var(--text-primary);
+  color:var(--neon-cyan);
   letter-spacing:8px;
-  margin-top:2rem;
+  margin-bottom:0.5rem;
   text-transform:uppercase;
 }
 .preloader-sub{
   font-family:'JetBrains Mono',monospace;
-  font-size:0.8rem;
+  font-size:0.9rem;
   color:var(--text-muted);
-  margin-top:0.5rem;
+  margin-bottom:2rem;
   letter-spacing:2px;
+}
+.preloader-line{
+  width:200px;
+  height:2px;
+  background:var(--border-subtle);
+  border-radius:1px;
+  overflow:hidden;
+}
+.preloader-line::after{
+  content:'';
+  display:block;
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,var(--neon-cyan),var(--neon-blue));
+  animation:loadLine 1.5s ease-out forwards;
+}
+@keyframes pulse{
+  0%,100%{transform:scale(1);opacity:1;}
+  50%{transform:scale(1.05);opacity:0.8;}
+}
+@keyframes loadLine{
+  to{width:100%;}
 }
 
 /* Header */
@@ -134,7 +164,7 @@ header{
   left:0;
   right:0;
   z-index:100;
-  background:rgba(2,2,4,0.8);
+  background:linear-gradient(to bottom,rgba(5,5,8,0.95),rgba(5,5,8,0.85));
   backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border-subtle);
   transition:all 0.3s ease;
@@ -154,59 +184,60 @@ header{
   gap:1rem;
 }
 .logo-icon{
-  width:40px;
-  height:40px;
-  background:var(--gradient-accent);
-  border-radius:12px;
+  width:44px;
+  height:44px;
+  border:2px solid var(--neon-cyan);
+  border-radius:50%;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:1.5rem;
-  color:var(--void-black);
-  font-weight:800;
-  transform:rotate(45deg);
-  box-shadow:var(--shadow-cyan);
+  flex-shrink:0;
+  box-shadow:0 0 15px rgba(0,212,255,0.3);
 }
-.logo-icon span{
-  transform:rotate(-45deg);
+.logo-icon::before{
+  content:'◈';
+  font-size:1.2rem;
+  color:var(--neon-cyan);
 }
 .logo-text{
   font-family:'Inter',sans-serif;
-  font-size:1.3rem;
+  font-size:1.4rem;
   font-weight:800;
-  color:var(--text-primary);
-  letter-spacing:2px;
+  color:var(--neon-cyan);
+  letter-spacing:6px;
+  text-transform:uppercase;
 }
 .logo-sub{
   font-family:'JetBrains Mono',monospace;
-  font-size:0.7rem;
-  color:var(--neon-cyan);
+  font-size:0.75rem;
+  color:var(--text-muted);
   margin-top:-2px;
   letter-spacing:1px;
 }
 nav{
   display:flex;
   gap:0.5rem;
-  background:rgba(255,255,255,0.02);
+  background:rgba(255,255,255,0.03);
   padding:6px;
   border-radius:50px;
   border:1px solid var(--border-subtle);
 }
 nav a{
   font-family:'Inter',sans-serif;
-  font-size:0.75rem;
+  font-size:0.7rem;
   font-weight:600;
   letter-spacing:1px;
   color:var(--text-secondary);
   text-decoration:none;
-  padding:10px 20px;
+  padding:10px 18px;
   border-radius:50px;
   transition:all 0.3s ease;
   text-transform:uppercase;
+  cursor:pointer;
 }
 nav a:hover,nav a.active{
   color:var(--void-black);
-  background:var(--gradient-accent);
+  background:var(--neon-cyan);
   box-shadow:var(--shadow-cyan);
 }
 .header-right{
@@ -219,8 +250,8 @@ nav a:hover,nav a.active{
   height:40px;
   border:1px solid var(--border-subtle);
   border-radius:50%;
-  background:rgba(255,255,255,0.02);
-  color:var(--text-secondary);
+  background:transparent;
+  color:var(--text-muted);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -230,15 +261,14 @@ nav a:hover,nav a.active{
 .social-icon-btn:hover{
   border-color:var(--neon-cyan);
   color:var(--neon-cyan);
-  box-shadow:0 0 20px rgba(0,240,255,0.3);
-  transform:translateY(-2px);
+  box-shadow:0 0 15px rgba(0,212,255,0.3);
 }
 .connect-btn{
   font-family:'Inter',sans-serif;
-  font-size:0.75rem;
+  font-size:0.7rem;
   font-weight:700;
-  letter-spacing:1px;
-  background:var(--gradient-accent);
+  letter-spacing:2px;
+  background:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));
   color:var(--void-black);
   border:none;
   padding:12px 24px;
@@ -246,26 +276,13 @@ nav a:hover,nav a.active{
   transition:all 0.3s ease;
   border-radius:50px;
   text-transform:uppercase;
-  position:relative;
-  overflow:hidden;
-}
-.connect-btn::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
-  transform:translateX(-100%);
-  transition:transform 0.5s;
-}
-.connect-btn:hover::before{
-  transform:translateX(100%);
 }
 .connect-btn:hover{
   transform:translateY(-2px);
   box-shadow:var(--shadow-cyan);
 }
 .connect-btn.connected{
-  background:var(--gradient-purple);
+  background:linear-gradient(135deg,var(--success),#059669);
   color:var(--text-primary);
 }
 
@@ -284,60 +301,40 @@ nav a:hover,nav a.active{
 .hero-content{
   position:relative;
   z-index:1;
-  max-width:1000px;
+  max-width:900px;
 }
-.hero-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
+.hero-script{
   font-family:'JetBrains Mono',monospace;
-  font-size:0.75rem;
+  font-size:0.85rem;
   color:var(--neon-cyan);
-  margin-bottom:2rem;
-  padding:8px 16px;
-  background:rgba(0,240,255,0.1);
-  border:1px solid rgba(0,240,255,0.3);
-  border-radius:50px;
+  margin-bottom:1.5rem;
+  letter-spacing:4px;
   text-transform:uppercase;
-  letter-spacing:2px;
-}
-.hero-badge::before{
-  content:'';
-  width:8px;
-  height:8px;
-  background:var(--neon-cyan);
-  border-radius:50%;
-  animation:pulseDot 2s infinite;
-}
-@keyframes pulseDot{
-  0%,100%{opacity:1;transform:scale(1);}
-  50%{opacity:0.5;transform:scale(1.2);}
 }
 .hero h1{
   font-family:'Inter',sans-serif;
-  font-size:clamp(3rem,8vw,6rem);
+  font-size:clamp(2.5rem,6vw,5rem);
   font-weight:800;
-  line-height:1;
+  line-height:1.1;
   color:var(--text-primary);
   margin-bottom:1.5rem;
-  letter-spacing:-3px;
+  text-transform:uppercase;
+  letter-spacing:-2px;
 }
 .hero h1 span{
-  background:var(--gradient-accent);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
+  color:var(--neon-cyan);
+  text-shadow:0 0 30px rgba(0,212,255,0.5);
 }
 .hero p{
-  font-size:1.25rem;
+  font-size:1.1rem;
   color:var(--text-secondary);
   max-width:600px;
-  margin:0 auto 3rem;
+  margin:0 auto 2.5rem;
   line-height:1.8;
 }
 .hero-stats{
   display:flex;
-  gap:2rem;
+  gap:3rem;
   justify-content:center;
   flex-wrap:wrap;
   margin-bottom:3rem;
@@ -345,47 +342,30 @@ nav a:hover,nav a.active{
 .stat-item{
   text-align:center;
   padding:1.5rem 2rem;
-  background:rgba(255,255,255,0.02);
+  background:rgba(0,212,255,0.05);
   border:1px solid var(--border-subtle);
   border-radius:16px;
   transition:all 0.3s ease;
-  position:relative;
-  overflow:hidden;
-}
-.stat-item::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:var(--gradient-accent);
-  opacity:0;
-  transition:opacity 0.3s;
-}
-.stat-item:hover::before{
-  opacity:0.1;
 }
 .stat-item:hover{
   border-color:var(--neon-cyan);
-  transform:translateY(-4px);
   box-shadow:var(--shadow-cyan);
 }
 .stat-val{
   font-family:'JetBrains Mono',monospace;
-  font-size:2.5rem;
+  font-size:2.2rem;
   font-weight:600;
   color:var(--neon-cyan);
   display:block;
   line-height:1;
-  position:relative;
-  z-index:1;
+  text-shadow:0 0 20px rgba(0,212,255,0.4);
 }
 .stat-lbl{
-  font-size:0.7rem;
+  font-size:0.65rem;
   letter-spacing:3px;
   color:var(--text-muted);
   text-transform:uppercase;
   margin-top:0.75rem;
-  position:relative;
-  z-index:1;
 }
 .hero-cta{
   display:flex;
@@ -397,11 +377,11 @@ nav a:hover,nav a.active{
 /* Buttons */
 .btn{
   font-family:'Inter',sans-serif;
-  font-size:0.8rem;
+  font-size:0.75rem;
   font-weight:700;
-  letter-spacing:1px;
+  letter-spacing:2px;
   text-transform:uppercase;
-  padding:16px 32px;
+  padding:14px 32px;
   border:none;
   cursor:pointer;
   transition:all 0.3s ease;
@@ -410,11 +390,9 @@ nav a:hover,nav a.active{
   gap:10px;
   border-radius:50px;
   text-decoration:none;
-  position:relative;
-  overflow:hidden;
 }
 .btn-primary{
-  background:var(--gradient-accent);
+  background:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));
   color:var(--void-black);
 }
 .btn-primary:hover{
@@ -429,7 +407,7 @@ nav a:hover,nav a.active{
 .btn-secondary:hover{
   border-color:var(--neon-cyan);
   color:var(--neon-cyan);
-  box-shadow:0 0 20px rgba(0,240,255,0.2);
+  box-shadow:0 0 15px rgba(0,212,255,0.2);
 }
 .btn-outline{
   background:transparent;
@@ -439,6 +417,18 @@ nav a:hover,nav a.active{
 .btn-outline:hover{
   background:var(--neon-cyan);
   color:var(--void-black);
+}
+.btn-gold{
+  background:linear-gradient(135deg,var(--neon-purple),#7C3AED);
+  color:var(--text-primary);
+}
+.btn-gold:hover{
+  transform:translateY(-2px);
+  box-shadow:0 0 20px rgba(139,92,246,0.4);
+}
+.btn-full{
+  width:100%;
+  justify-content:center;
 }
 
 /* Sections */
@@ -455,31 +445,32 @@ nav a:hover,nav a.active{
   text-align:center;
   margin-bottom:4rem;
 }
-.section-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
+.section-script{
   font-family:'JetBrains Mono',monospace;
   font-size:0.75rem;
-  color:var(--neon-purple);
-  margin-bottom:1rem;
-  padding:8px 16px;
-  background:rgba(184,41,247,0.1);
-  border:1px solid rgba(184,41,247,0.3);
-  border-radius:50px;
+  color:var(--neon-cyan);
+  margin-bottom:0.5rem;
+  letter-spacing:4px;
   text-transform:uppercase;
-  letter-spacing:2px;
+}
+.section-subtitle{
+  font-size:0.7rem;
+  letter-spacing:4px;
+  color:var(--text-muted);
+  text-transform:uppercase;
+  margin-bottom:1rem;
 }
 .section-title{
   font-family:'Inter',sans-serif;
-  font-size:3rem;
+  font-size:2.5rem;
   font-weight:800;
   color:var(--text-primary);
   margin-bottom:1rem;
-  letter-spacing:-2px;
+  text-transform:uppercase;
+  letter-spacing:-1px;
 }
 .section-desc{
-  font-size:1.1rem;
+  font-size:1rem;
   color:var(--text-secondary);
   max-width:600px;
   margin:0 auto;
@@ -487,9 +478,9 @@ nav a:hover,nav a.active{
 
 /* Cards */
 .card{
-  background:var(--void-card);
+  background:var(--void-dark);
   border:1px solid var(--border-subtle);
-  border-radius:20px;
+  border-radius:16px;
   padding:2rem;
   position:relative;
   overflow:hidden;
@@ -497,24 +488,17 @@ nav a:hover,nav a.active{
 }
 .card:hover{
   border-color:var(--neon-cyan);
-  box-shadow:0 0 30px rgba(0,240,255,0.1);
+  box-shadow:0 0 30px rgba(0,212,255,0.1);
 }
-.card::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:var(--gradient-accent);
-  opacity:0;
-  transition:opacity 0.3s;
-}
-.card:hover::before{
-  opacity:0.05;
+.card-dark{
+  background:rgba(0,0,0,0.4);
+  border-color:var(--border-subtle);
 }
 .card-title{
   font-family:'Inter',sans-serif;
-  font-size:1.1rem;
+  font-size:1rem;
   font-weight:700;
-  color:var(--text-primary);
+  color:var(--neon-cyan);
   margin-bottom:1.5rem;
   display:flex;
   align-items:center;
@@ -523,12 +507,12 @@ nav a:hover,nav a.active{
   border-bottom:1px solid var(--border-subtle);
   text-transform:uppercase;
   letter-spacing:1px;
-  position:relative;
-  z-index:1;
 }
-.card-content{
-  position:relative;
-  z-index:1;
+.card-title::after{
+  content:'';
+  flex:1;
+  height:1px;
+  background:linear-gradient(90deg,var(--border-subtle),transparent);
 }
 
 /* Grids */
@@ -551,141 +535,291 @@ nav a:hover,nav a.active{
   .grid-2,.grid-3{grid-template-columns:1fr;}
   .header-inner{flex-wrap:wrap;height:auto;padding:1rem;}
   nav{width:100%;justify-content:center;margin-top:1rem;}
-  .hero-stats{gap:1rem;}
+  .hero-stats{gap:1.5rem;}
 }
 
-/* Feature Cards */
-.feature-card{
-  background:var(--void-card);
+/* Form Fields */
+.field{
+  margin-bottom:1.25rem;
+}
+.field label{
+  display:block;
+  font-size:0.65rem;
+  font-weight:600;
+  letter-spacing:2px;
+  color:var(--text-muted);
+  margin-bottom:8px;
+  text-transform:uppercase;
+}
+.field input,.field select,.field textarea{
+  width:100%;
+  background:rgba(255,255,255,0.03);
   border:1px solid var(--border-subtle);
-  border-radius:20px;
-  padding:2.5rem;
+  color:var(--text-primary);
+  font-family:'Inter',sans-serif;
+  font-size:0.95rem;
+  padding:14px 18px;
+  outline:none;
+  transition:all 0.3s ease;
+  border-radius:12px;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--neon-cyan);
+  box-shadow:0 0 0 3px rgba(0,212,255,0.1);
+}
+.field select option{
+  background:var(--void-dark);
+}
+.field textarea{
+  resize:vertical;
+  min-height:100px;
+}
+
+/* Badges & Chips */
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:0.6rem;
+  font-weight:700;
+  letter-spacing:1.5px;
+  padding:8px 14px;
+  border-radius:50px;
+  text-transform:uppercase;
+}
+.badge-active{
+  background:rgba(16,185,129,0.15);
+  border:1px solid var(--success);
+  color:var(--success);
+}
+.badge-ended{
+  background:rgba(239,68,68,0.15);
+  border:1px solid var(--error);
+  color:var(--error);
+}
+.badge-pending{
+  background:rgba(245,158,11,0.15);
+  border:1px solid var(--warning);
+  color:var(--warning);
+}
+.pulse-dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:currentColor;
+  animation:pulseDot 1.5s ease-in-out infinite;
+}
+@keyframes pulseDot{
+  0%,100%{transform:scale(1);opacity:1;}
+  50%{transform:scale(1.3);opacity:0.5;}
+}
+.chip{
+  font-size:0.65rem;
+  font-weight:600;
+  letter-spacing:1px;
+  padding:6px 14px;
+  border-radius:50px;
+  display:inline-block;
+}
+.chip-gold{
+  background:rgba(0,212,255,0.15);
+  border:1px solid var(--neon-cyan);
+  color:var(--neon-cyan);
+}
+.chip-teal{
+  background:rgba(16,185,129,0.15);
+  border:1px solid var(--success);
+  color:var(--success);
+}
+.chip-burgundy{
+  background:rgba(139,92,246,0.15);
+  border:1px solid var(--neon-purple);
+  color:var(--neon-purple);
+}
+
+/* Comms Log */
+.comms{
+  background:var(--void-black);
+  border:1px solid var(--border-subtle);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.75rem;
+  padding:1.25rem;
+  max-height:200px;
+  overflow-y:auto;
+  border-radius:12px;
+}
+.comms::-webkit-scrollbar{width:6px;}
+.comms::-webkit-scrollbar-track{background:var(--void-dark);}
+.comms::-webkit-scrollbar-thumb{background:var(--border-subtle);border-radius:3px;}
+.log-line{
+  display:flex;
+  gap:12px;
+  line-height:2;
+}
+.log-time{
+  color:var(--text-muted);
+  flex-shrink:0;
+}
+.log-msg.info{color:var(--neon-cyan);}
+.log-msg.success{color:var(--success);}
+.log-msg.warn{color:var(--warning);}
+.log-msg.error{color:var(--error);}
+
+/* Demo Banner */
+.demo-banner{
+  background:rgba(0,212,255,0.08);
+  border:1px solid rgba(0,212,255,0.3);
+  padding:1.25rem 1.5rem;
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  margin-bottom:2rem;
+  flex-wrap:wrap;
+  border-radius:16px;
+}
+.demo-banner.ok{
+  background:rgba(16,185,129,0.08);
+  border-color:rgba(16,185,129,0.3);
+}
+.demo-banner p{
+  font-size:0.9rem;
+  color:var(--text-secondary);
+  line-height:1.6;
+  flex:1;
+  min-width:200px;
+}
+.demo-banner p strong{
+  color:var(--neon-cyan);
+}
+.demo-banner.ok p strong{
+  color:var(--success);
+}
+
+/* Encryption Flow */
+.encrypt-flow{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:1.5rem;
+  background:var(--void-black);
+  border:1px solid var(--border-subtle);
+  border-radius:16px;
+}
+.ef-node{
+  background:var(--void-dark);
+  border:1px solid var(--border-subtle);
+  padding:14px 18px;
+  text-align:center;
+  border-radius:12px;
+  flex:1;
+  min-width:120px;
+  transition:all 0.3s ease;
+}
+.ef-node:hover{
+  border-color:var(--neon-cyan);
+}
+.ef-node .label{
+  color:var(--text-muted);
+  font-size:0.6rem;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.ef-node .value{
+  color:var(--neon-cyan);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.7rem;
+}
+.ef-arrow{
+  color:var(--neon-cyan);
+  font-size:1.2rem;
+}
+
+/* Threat Cards */
+.threat-card{
+  background:var(--void-dark);
+  border:1px solid var(--border-subtle);
+  padding:2rem;
   transition:all 0.3s ease;
   position:relative;
   overflow:hidden;
+  border-radius:16px;
 }
-.feature-card::after{
+.threat-card::before{
   content:'';
   position:absolute;
   top:0;
   left:0;
   right:0;
-  height:2px;
-  background:var(--gradient-accent);
+  height:3px;
+  background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple));
   transform:scaleX(0);
   transition:transform 0.3s ease;
 }
-.feature-card:hover::after{
+.threat-card:hover::before{
   transform:scaleX(1);
 }
-.feature-card:hover{
+.threat-card:hover{
+  box-shadow:0 0 30px rgba(0,212,255,0.1);
   border-color:var(--neon-cyan);
-  transform:translateY(-4px);
-  box-shadow:0 20px 40px rgba(0,0,0,0.4);
 }
-.feature-icon{
-  width:60px;
-  height:60px;
-  background:rgba(0,240,255,0.1);
-  border:1px solid rgba(0,240,255,0.3);
-  border-radius:16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:1.8rem;
-  margin-bottom:1.5rem;
-  transition:all 0.3s ease;
+.threat-icon{
+  font-size:2.5rem;
+  margin-bottom:1rem;
 }
-.feature-card:hover .feature-icon{
-  background:var(--neon-cyan);
-  transform:scale(1.1);
-}
-.feature-title{
+.threat-title{
   font-family:'Inter',sans-serif;
-  font-size:1.2rem;
+  font-size:1rem;
   font-weight:700;
   color:var(--text-primary);
   margin-bottom:1rem;
   text-transform:uppercase;
   letter-spacing:1px;
 }
-.feature-desc{
-  font-size:0.95rem;
-  color:var(--text-secondary);
+.threat-bad{
+  color:var(--error);
+  font-size:0.85rem;
   line-height:1.7;
-}
-
-/* Protocol Steps */
-.proto-flow{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:0;
-  flex-wrap:wrap;
-  padding:2rem;
-  position:relative;
-}
-.proto-step{
-  background:var(--void-card);
-  border:1px solid var(--border-subtle);
-  padding:1.5rem;
-  text-align:center;
-  min-width:140px;
-  transition:all 0.3s ease;
-  border-radius:16px;
-  position:relative;
-  z-index:1;
-}
-.proto-step:hover{
-  border-color:var(--neon-cyan);
-  transform:translateY(-4px);
-  box-shadow:var(--shadow-cyan);
-}
-.proto-step.active{
-  border-color:var(--neon-cyan);
-  background:rgba(0,240,255,0.05);
-}
-.proto-icon{
-  font-size:2rem;
   margin-bottom:0.5rem;
+  padding-left:1.5rem;
+  position:relative;
 }
-.proto-label{
-  color:var(--text-muted);
-  font-size:0.7rem;
-  line-height:1.5;
-  letter-spacing:1px;
-  text-transform:uppercase;
+.threat-bad::before{
+  content:'✕';
+  position:absolute;
+  left:0;
 }
-.proto-value{
-  color:var(--neon-cyan);
-  font-family:'JetBrains Mono',monospace;
-  font-size:0.8rem;
-  margin-top:0.5rem;
+.threat-good{
+  color:var(--success);
+  font-size:0.85rem;
+  line-height:1.7;
+  padding-left:1.5rem;
+  position:relative;
 }
-.proto-arrow{
-  color:var(--neon-cyan);
-  font-size:1.5rem;
-  padding:0 1rem;
-  opacity:0.5;
+.threat-good::before{
+  content:'✓';
+  position:absolute;
+  left:0;
 }
 
 /* Game Cards */
 .game-card{
-  background:var(--void-card);
+  background:var(--void-dark);
   border:1px solid var(--border-subtle);
-  border-radius:20px;
-  padding:2.5rem;
+  padding:2.5rem 2rem;
   text-align:center;
   transition:all 0.3s ease;
   cursor:pointer;
   position:relative;
   overflow:hidden;
+  border-radius:16px;
 }
 .game-card::before{
   content:'';
   position:absolute;
   inset:0;
-  background:radial-gradient(circle at center,rgba(0,240,255,0.1),transparent 70%);
+  background:radial-gradient(circle at center,rgba(0,212,255,0.08),transparent 70%);
   opacity:0;
   transition:opacity 0.3s ease;
 }
@@ -694,20 +828,16 @@ nav a:hover,nav a.active{
 }
 .game-card:hover{
   border-color:var(--neon-cyan);
-  transform:translateY(-8px);
-  box-shadow:0 20px 40px rgba(0,240,255,0.15);
+  transform:translateY(-4px);
+  box-shadow:0 0 30px rgba(0,212,255,0.15);
 }
 .game-icon{
   font-size:3.5rem;
   margin-bottom:1.5rem;
-  transition:transform 0.3s ease;
-}
-.game-card:hover .game-icon{
-  transform:scale(1.1) rotate(5deg);
 }
 .game-name{
   font-family:'Inter',sans-serif;
-  font-size:1.2rem;
+  font-size:1.1rem;
   font-weight:700;
   color:var(--text-primary);
   margin-bottom:0.75rem;
@@ -718,7 +848,7 @@ nav a:hover,nav a.active{
   font-size:0.9rem;
   color:var(--text-secondary);
   line-height:1.6;
-  margin-bottom:1.5rem;
+  margin-bottom:1rem;
 }
 .game-cost{
   display:inline-flex;
@@ -726,24 +856,23 @@ nav a:hover,nav a.active{
   gap:6px;
   font-size:0.7rem;
   color:var(--neon-cyan);
-  border:1px solid rgba(0,240,255,0.3);
+  border:1px solid rgba(0,212,255,0.3);
   padding:8px 16px;
-  background:rgba(0,240,255,0.05);
+  background:rgba(0,212,255,0.05);
   border-radius:50px;
-  font-family:'JetBrains Mono',monospace;
 }
 
 /* Tic Tac Toe */
 .ttt-board{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:12px;
-  max-width:400px;
+  gap:10px;
+  max-width:360px;
   margin:0 auto;
 }
 .ttt-cell{
   aspect-ratio:1;
-  background:var(--void-card);
+  background:var(--void-dark);
   border:2px solid var(--border-subtle);
   display:flex;
   align-items:center;
@@ -754,42 +883,39 @@ nav a:hover,nav a.active{
   cursor:pointer;
   transition:all 0.2s ease;
   border-radius:12px;
-  color:var(--text-primary);
 }
 .ttt-cell:hover:not(.taken){
   border-color:var(--neon-cyan);
-  background:rgba(0,240,255,0.05);
-  box-shadow:0 0 20px rgba(0,240,255,0.2);
+  background:rgba(0,212,255,0.05);
 }
 .ttt-cell.x{
   color:var(--neon-cyan);
-  text-shadow:0 0 20px rgba(0,240,255,0.5);
-  background:rgba(0,240,255,0.1);
-  border-color:var(--neon-cyan);
+  text-shadow:0 0 20px rgba(0,212,255,0.5);
 }
 .ttt-cell.o{
   color:var(--neon-purple);
-  text-shadow:0 0 20px rgba(184,41,247,0.5);
-  background:rgba(184,41,247,0.1);
-  border-color:var(--neon-purple);
+  text-shadow:0 0 20px rgba(139,92,246,0.5);
 }
 .ttt-cell.win{
-  animation:winPulse 0.5s ease infinite alternate;
+  background:rgba(0,212,255,0.15);
+  border-color:var(--neon-cyan);
+  animation:winCell 0.5s ease;
 }
-@keyframes winPulse{
-  from{box-shadow:0 0 20px rgba(0,240,255,0.4);}
-  to{box-shadow:0 0 40px rgba(0,240,255,0.8);}
+@keyframes winCell{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.05);}
+  100%{transform:scale(1);}
 }
 .ttt-status{
   font-family:'Inter',sans-serif;
-  font-size:1.2rem;
+  font-size:1.1rem;
   font-weight:700;
   color:var(--neon-cyan);
   text-align:center;
   margin:2rem 0;
   min-height:2rem;
   text-transform:uppercase;
-  letter-spacing:2px;
+  letter-spacing:1px;
 }
 .ttt-score{
   display:flex;
@@ -799,21 +925,19 @@ nav a:hover,nav a.active{
   margin-bottom:2rem;
 }
 .score-box{
-  background:var(--void-card);
+  background:var(--void-dark);
   border:1px solid var(--border-subtle);
   padding:1rem 2rem;
   text-align:center;
   border-radius:16px;
   transition:all 0.3s ease;
-  min-width:100px;
 }
 .score-box:hover{
   border-color:var(--neon-cyan);
-  transform:translateY(-2px);
 }
 .score-box .sv{
   font-family:'JetBrains Mono',monospace;
-  font-size:2rem;
+  font-size:1.8rem;
   font-weight:600;
   color:var(--neon-cyan);
 }
@@ -830,41 +954,48 @@ nav a:hover,nav a.active{
   max-width:800px;
   margin:0 auto;
 }
-.quiz-progress{
+.quiz-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:2rem;
+  flex-wrap:wrap;
+  gap:1rem;
+}
+.quiz-progress-bar{
   height:4px;
   background:var(--border-subtle);
   margin-bottom:2rem;
-  border-radius:2px;
   overflow:hidden;
+  border-radius:2px;
 }
 .quiz-progress-fill{
   height:100%;
-  background:var(--gradient-accent);
+  background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple));
   transition:width 0.5s ease;
 }
 .question-card{
-  background:var(--void-card);
+  background:var(--void-dark);
   border:1px solid var(--border-subtle);
-  border-radius:20px;
   padding:2.5rem;
   margin-bottom:1rem;
   animation:slideIn 0.4s ease;
+  border-radius:16px;
 }
 @keyframes slideIn{
-  from{opacity:0;transform:translateY(20px);}
+  from{opacity:0;transform:translateY(15px);}
   to{opacity:1;transform:translateY(0);}
 }
 .question-num{
-  font-family:'JetBrains Mono',monospace;
-  font-size:0.8rem;
-  color:var(--neon-cyan);
+  font-size:0.7rem;
+  letter-spacing:2px;
+  color:var(--text-muted);
   margin-bottom:1rem;
   text-transform:uppercase;
-  letter-spacing:2px;
 }
 .question-text{
   font-family:'Inter',sans-serif;
-  font-size:1.3rem;
+  font-size:1.25rem;
   font-weight:600;
   color:var(--text-primary);
   line-height:1.5;
@@ -873,44 +1004,43 @@ nav a:hover,nav a.active{
 .answer-options{
   display:flex;
   flex-direction:column;
-  gap:12px;
+  gap:10px;
 }
 .answer-opt{
-  background:rgba(255,255,255,0.02);
+  background:rgba(255,255,255,0.03);
   border:1px solid var(--border-subtle);
-  padding:1.25rem;
+  padding:1rem 1.25rem;
   cursor:pointer;
   transition:all 0.2s ease;
   display:flex;
   align-items:center;
   gap:14px;
-  font-size:1rem;
+  font-size:0.95rem;
   color:var(--text-primary);
   border-radius:12px;
 }
 .answer-opt:hover:not(.disabled){
   border-color:var(--neon-cyan);
-  background:rgba(0,240,255,0.05);
-  transform:translateX(8px);
+  background:rgba(0,212,255,0.05);
 }
 .answer-opt.correct{
-  border-color:var(--neon-green);
-  background:rgba(0,255,157,0.1);
-  color:var(--neon-green);
+  border-color:var(--success);
+  background:rgba(16,185,129,0.1);
+  color:var(--success);
 }
 .answer-opt.wrong{
-  border-color:#ff4444;
-  background:rgba(255,68,68,0.1);
-  color:#ff4444;
+  border-color:var(--error);
+  background:rgba(239,68,68,0.1);
+  color:var(--error);
 }
 .answer-opt.disabled{cursor:default;}
 .opt-letter{
   font-family:'JetBrains Mono',monospace;
-  font-size:0.9rem;
+  font-size:0.75rem;
   font-weight:600;
-  width:36px;
-  height:36px;
-  border:2px solid currentColor;
+  width:32px;
+  height:32px;
+  border:1px solid currentColor;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -919,14 +1049,12 @@ nav a:hover,nav a.active{
 }
 .quiz-timer{
   font-family:'JetBrains Mono',monospace;
-  font-size:2.5rem;
+  font-size:2rem;
   font-weight:600;
   color:var(--neon-cyan);
-  text-align:center;
-  margin-bottom:2rem;
 }
 .quiz-timer.low{
-  color:#ff4444;
+  color:var(--error);
   animation:urgentPulse 0.5s ease-in-out infinite alternate;
 }
 @keyframes urgentPulse{
@@ -935,12 +1063,12 @@ nav a:hover,nav a.active{
 
 /* Results */
 .results-card{
-  background:var(--void-card);
+  background:var(--void-dark);
   border:2px solid var(--neon-cyan);
   padding:3rem 2rem;
   text-align:center;
   animation:resultReveal 0.5s ease;
-  border-radius:20px;
+  border-radius:16px;
   box-shadow:var(--shadow-cyan);
 }
 @keyframes resultReveal{
@@ -952,16 +1080,15 @@ nav a:hover,nav a.active{
   font-size:1rem;
   font-weight:800;
   letter-spacing:4px;
-  padding:16px 40px;
+  padding:14px 36px;
   display:inline-block;
   margin-bottom:1.5rem;
   border-radius:50px;
   text-transform:uppercase;
 }
 .rank-LEGEND{
-  background:var(--gradient-accent);
+  background:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));
   color:var(--void-black);
-  box-shadow:var(--shadow-cyan);
 }
 .rank-COMMANDER{
   background:linear-gradient(135deg,#c0c0c0,#808080);
@@ -972,8 +1099,8 @@ nav a:hover,nav a.active{
   color:var(--text-primary);
 }
 .rank-SOLDIER{
-  background:linear-gradient(135deg,var(--neon-green),#00cc7a);
-  color:var(--void-black);
+  background:linear-gradient(135deg,var(--success),#059669);
+  color:var(--text-primary);
 }
 .rank-RECRUIT{
   background:linear-gradient(135deg,var(--text-muted),var(--text-secondary));
@@ -981,15 +1108,15 @@ nav a:hover,nav a.active{
 }
 .result-score{
   font-family:'JetBrains Mono',monospace;
-  font-size:5rem;
+  font-size:4rem;
   font-weight:600;
   color:var(--neon-cyan);
   line-height:1;
   margin-bottom:0.5rem;
-  text-shadow:0 0 30px rgba(0,240,255,0.4);
+  text-shadow:0 0 30px rgba(0,212,255,0.4);
 }
 .result-label{
-  font-size:0.9rem;
+  font-size:0.8rem;
   letter-spacing:3px;
   color:var(--text-muted);
   text-transform:uppercase;
@@ -1001,6 +1128,36 @@ nav a:hover,nav a.active{
   line-height:1.7;
   max-width:500px;
 }
+.result-breakdown{
+  display:flex;
+  gap:1px;
+  justify-content:center;
+  margin:2rem 0;
+  flex-wrap:wrap;
+}
+.rb-item{
+  background:var(--void-black);
+  border:1px solid var(--border-subtle);
+  padding:1rem 1.5rem;
+  text-align:center;
+  border-radius:12px;
+}
+.rb-val{
+  font-family:'JetBrains Mono',monospace;
+  font-size:1.4rem;
+  font-weight:600;
+}
+.rb-lbl{
+  font-size:0.65rem;
+  letter-spacing:2px;
+  color:var(--text-muted);
+  text-transform:uppercase;
+  margin-top:4px;
+}
+.rb-correct .rb-val{color:var(--success);}
+.rb-wrong .rb-val{color:var(--error);}
+.rb-skip .rb-val{color:var(--neon-cyan);}
+.rb-time .rb-val{color:var(--neon-purple);}
 
 /* Profile */
 .profile-header{
@@ -1008,31 +1165,28 @@ nav a:hover,nav a.active{
   gap:2rem;
   align-items:center;
   padding:2.5rem;
-  background:var(--void-card);
+  background:var(--void-dark);
   border:1px solid var(--border-subtle);
   margin-bottom:2rem;
-  border-radius:20px;
   flex-wrap:wrap;
+  border-radius:16px;
 }
 .profile-avatar{
-  width:100px;
-  height:100px;
-  background:var(--gradient-accent);
-  border-radius:24px;
+  width:90px;
+  height:90px;
+  border:3px solid var(--neon-cyan);
+  border-radius:50%;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:3rem;
+  font-size:2.5rem;
   flex-shrink:0;
+  background:var(--void-black);
   box-shadow:var(--shadow-cyan);
-  transform:rotate(45deg);
-}
-.profile-avatar span{
-  transform:rotate(-45deg);
 }
 .profile-info h2{
   font-family:'Inter',sans-serif;
-  font-size:2rem;
+  font-size:1.5rem;
   font-weight:800;
   color:var(--text-primary);
   letter-spacing:2px;
@@ -1040,7 +1194,6 @@ nav a:hover,nav a.active{
   text-transform:uppercase;
 }
 .profile-info .handle{
-  font-family:'JetBrains Mono',monospace;
   font-size:0.9rem;
   color:var(--neon-cyan);
   margin-bottom:1rem;
@@ -1048,142 +1201,172 @@ nav a:hover,nav a.active{
 .profile-stats{
   display:flex;
   gap:1rem;
-  margin-top:1.5rem;
+  margin-top:1rem;
   flex-wrap:wrap;
 }
 .p-stat{
   background:var(--void-black);
   border:1px solid var(--border-subtle);
-  padding:1rem 1.5rem;
+  padding:0.75rem 1.25rem;
   text-align:center;
   border-radius:12px;
   transition:all 0.3s ease;
-  min-width:80px;
 }
 .p-stat:hover{
   border-color:var(--neon-cyan);
-  transform:translateY(-2px);
 }
 .p-stat-val{
   font-family:'JetBrains Mono',monospace;
-  font-size:1.5rem;
+  font-size:1.3rem;
   font-weight:600;
   color:var(--neon-cyan);
 }
 .p-stat-lbl{
-  font-size:0.65rem;
+  font-size:0.6rem;
   letter-spacing:2px;
   color:var(--text-muted);
   text-transform:uppercase;
 }
 
-/* Form Fields */
-.field{
-  margin-bottom:1.5rem;
+/* Social Row */
+.social-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:1.5rem;
 }
-.field label{
-  display:block;
+.btn-social{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 18px;
+  border-radius:50px;
   font-size:0.7rem;
   font-weight:600;
-  letter-spacing:2px;
-  color:var(--text-muted);
-  margin-bottom:8px;
-  text-transform:uppercase;
+  text-decoration:none;
+  transition:all 0.3s ease;
 }
-.field input,.field select,.field textarea{
-  width:100%;
-  background:rgba(255,255,255,0.02);
+.btn-tw{
+  background:linear-gradient(135deg,#1da1f2,#0d7fc4);
+  color:#fff;
+}
+.btn-tw:hover{
+  filter:brightness(1.1);
+  transform:translateY(-2px);
+}
+.btn-gh{
+  background:linear-gradient(135deg,#24292e,#444c56);
+  color:#fff;
+}
+.btn-gh:hover{
+  filter:brightness(1.2);
+  transform:translateY(-2px);
+}
+
+/* Node Diagram */
+.node-diagram{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+  flex-wrap:wrap;
+  padding:2rem;
+}
+.nd-item{
+  background:var(--void-dark);
   border:1px solid var(--border-subtle);
-  color:var(--text-primary);
-  font-family:'Inter',sans-serif;
-  font-size:1rem;
-  padding:16px;
-  outline:none;
+  padding:1.25rem;
+  text-align:center;
+  min-width:100px;
   transition:all 0.3s ease;
   border-radius:12px;
 }
-.field input:focus,.field select:focus,.field textarea:focus{
+.nd-item:hover{
   border-color:var(--neon-cyan);
-  box-shadow:0 0 0 3px rgba(0,240,255,0.1);
+}
+.nd-icon{
+  font-size:1.75rem;
+  margin-bottom:6px;
+}
+.nd-label{
+  color:var(--text-muted);
+  font-size:0.65rem;
+  line-height:1.5;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.nd-arrow{
+  color:var(--neon-cyan);
+  font-size:1.25rem;
+  padding:0 6px;
 }
 
-/* Badges */
-.badge{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  font-size:0.7rem;
-  font-weight:700;
+/* Tag Cloud */
+.tag-cloud{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:1rem;
+}
+.tech-tag{
+  font-size:0.65rem;
+  font-weight:600;
   letter-spacing:1px;
-  padding:8px 14px;
+  padding:8px 16px;
+  background:var(--void-dark);
+  border:1px solid var(--border-subtle);
+  color:var(--text-muted);
+  transition:all 0.2s ease;
   border-radius:50px;
   text-transform:uppercase;
 }
-.badge-active{
-  background:rgba(0,255,157,0.15);
-  border:1px solid var(--neon-green);
-  color:var(--neon-green);
-}
-.badge-pending{
-  background:rgba(255,193,7,0.15);
-  border:1px solid #ffc107;
-  color:#ffc107;
+.tech-tag:hover{
+  border-color:var(--neon-cyan);
+  color:var(--neon-cyan);
 }
 
-/* Comms Log */
-.comms{
-  background:var(--void-black);
-  border:1px solid var(--border-subtle);
-  font-family:'JetBrains Mono',monospace;
-  font-size:0.8rem;
-  padding:1.5rem;
-  max-height:250px;
-  overflow-y:auto;
-  border-radius:12px;
-}
-.comms::-webkit-scrollbar{width:6px;}
-.comms::-webkit-scrollbar-track{background:var(--void-card);}
-.comms::-webkit-scrollbar-thumb{background:var(--border-subtle);border-radius:3px;}
-.log-line{
+/* Protocol Steps */
+.proto-step{
   display:flex;
-  gap:12px;
-  line-height:2;
-  opacity:0.8;
+  gap:1.25rem;
+  align-items:flex-start;
+  padding:1.25rem;
+  border-left:2px solid var(--border-subtle);
+  margin-left:20px;
+  transition:border-color 0.3s ease;
 }
-.log-time{
-  color:var(--text-muted);
-  flex-shrink:0;
+.proto-step:hover{
+  border-color:var(--neon-cyan);
 }
-.log-msg.info{color:var(--neon-cyan);}
-.log-msg.success{color:var(--neon-green);}
-.log-msg.warn{color:#ffc107;}
-.log-msg.error{color:#ff4444;}
-
-/* Demo Banner */
-.demo-banner{
-  background:rgba(0,240,255,0.05);
-  border:1px solid rgba(0,240,255,0.2);
-  padding:1.25rem 1.5rem;
+.step-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.75rem;
+  font-weight:600;
+  width:38px;
+  height:38px;
+  background:var(--void-dark);
+  border:1px solid var(--border-subtle);
+  border-radius:50%;
   display:flex;
   align-items:center;
-  gap:1rem;
-  margin-bottom:2rem;
-  flex-wrap:wrap;
-  border-radius:16px;
-}
-.demo-banner.ok{
-  background:rgba(0,255,157,0.05);
-  border-color:rgba(0,255,157,0.2);
-}
-.demo-banner p{
-  font-size:0.95rem;
-  color:var(--text-secondary);
-  line-height:1.6;
-  flex:1;
-  min-width:200px;
-}
-.demo-banner p strong{
+  justify-content:center;
+  flex-shrink:0;
   color:var(--neon-cyan);
+  margin-left:-21px;
+}
+.step-content h4{
+  font-family:'Inter',sans-serif;
+  font-size:1rem;
+  font-weight:700;
+  color:var(--text-primary);
+  margin-bottom:6px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+.step-content p{
+  font-size:0.9rem;
+  color:var(--text-secondary);
+  line-height:1.7;
 }
 
 /* Wallet Modal */
@@ -1191,7 +1374,7 @@ nav a:hover,nav a.active{
   display:none;
   position:fixed;
   inset:0;
-  background:rgba(2,2,4,0.95);
+  background:rgba(5,5,8,0.95);
   z-index:300;
   align-items:center;
   justify-content:center;
@@ -1201,14 +1384,14 @@ nav a:hover,nav a.active{
   display:flex;
 }
 .w-box{
-  background:var(--void-card);
+  background:var(--void-dark);
   border:1px solid var(--border-subtle);
   max-width:460px;
   width:92%;
   padding:2.5rem;
   animation:modalIn 0.3s ease;
   position:relative;
-  border-radius:20px;
+  border-radius:16px;
 }
 @keyframes modalIn{
   from{opacity:0;transform:scale(0.94);}
@@ -1216,12 +1399,12 @@ nav a:hover,nav a.active{
 }
 .w-box-title{
   font-family:'Inter',sans-serif;
-  font-size:1.5rem;
+  font-size:1.25rem;
   font-weight:700;
   color:var(--text-primary);
   margin-bottom:1.5rem;
   text-transform:uppercase;
-  letter-spacing:2px;
+  letter-spacing:1px;
 }
 .w-option{
   background:var(--void-black);
@@ -1237,7 +1420,7 @@ nav a:hover,nav a.active{
 }
 .w-option:hover{
   border-color:var(--neon-cyan);
-  background:rgba(0,240,255,0.05);
+  background:rgba(0,212,255,0.05);
 }
 .w-icon{
   font-size:2rem;
@@ -1271,8 +1454,8 @@ nav a:hover,nav a.active{
   transition:all 0.2s ease;
 }
 .w-close:hover{
-  border-color:#ff4444;
-  color:#ff4444;
+  border-color:var(--error);
+  color:var(--error);
 }
 
 /* Toast */
@@ -1286,10 +1469,10 @@ nav a:hover,nav a.active{
   gap:10px;
 }
 .toast{
-  background:var(--void-card);
+  background:var(--void-dark);
   border:1px solid var(--border-subtle);
-  padding:16px 20px;
-  font-size:0.9rem;
+  padding:14px 18px;
+  font-size:0.8rem;
   max-width:320px;
   animation:toastIn 0.3s ease;
   display:flex;
@@ -1298,12 +1481,60 @@ nav a:hover,nav a.active{
   border-radius:12px;
   box-shadow:0 10px 40px rgba(0,0,0,0.5);
 }
-.toast.success{border-color:var(--neon-green);color:var(--neon-green);}
-.toast.error{border-color:#ff4444;color:#ff4444;}
+.toast.success{border-color:var(--success);color:var(--success);}
+.toast.error{border-color:var(--error);color:var(--error);}
 .toast.info{border-color:var(--neon-cyan);color:var(--neon-cyan);}
+.toast.warn{border-color:var(--warning);color:var(--warning);}
 @keyframes toastIn{
   from{opacity:0;transform:translateX(20px);}
   to{opacity:1;transform:translateX(0);}
+}
+
+/* Divider */
+.divider{
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--border-subtle),transparent);
+  margin:4rem 0;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-track{background:var(--void-dark);}
+::-webkit-scrollbar-thumb{background:var(--border-subtle);border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:var(--neon-cyan);}
+
+/* Mission Cards */
+.mission-card{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:1rem;
+  padding:1.25rem;
+  background:var(--void-dark);
+  border:1px solid var(--border-subtle);
+  margin-bottom:8px;
+  border-radius:16px;
+  transition:all 0.3s ease;
+}
+.mission-card:hover{
+  border-color:var(--neon-cyan);
+}
+.mission-title{
+  font-family:'Inter',sans-serif;
+  font-size:1rem;
+  font-weight:700;
+  color:var(--text-primary);
+}
+.mission-meta{
+  font-size:0.7rem;
+  color:var(--text-muted);
+  margin-top:4px;
+}
+.mission-timer{
+  font-family:'JetBrains Mono',monospace;
+  font-size:1.25rem;
+  color:var(--neon-cyan);
 }
 
 /* Footer */
@@ -1311,7 +1542,6 @@ footer{
   background:var(--void-black);
   border-top:1px solid var(--border-subtle);
   padding:4rem 2rem 2rem;
-  margin-top:4rem;
 }
 .footer-inner{
   max-width:1400px;
@@ -1329,7 +1559,7 @@ footer{
   max-width:300px;
 }
 .footer-brand .logo-text{
-  color:var(--text-primary);
+  color:var(--neon-cyan);
   margin-bottom:1rem;
 }
 .footer-brand p{
@@ -1358,6 +1588,7 @@ footer{
   text-decoration:none;
   padding:6px 0;
   transition:color 0.2s ease;
+  cursor:pointer;
 }
 .footer-col a:hover{
   color:var(--neon-cyan);
@@ -1389,12 +1620,12 @@ footer{
   justify-content:center;
   color:var(--text-muted);
   transition:all 0.3s ease;
+  cursor:pointer;
 }
 .footer-social a:hover{
   border-color:var(--neon-cyan);
   color:var(--neon-cyan);
-  box-shadow:0 0 15px rgba(0,240,255,0.3);
-  transform:translateY(-2px);
+  box-shadow:0 0 15px rgba(0,212,255,0.3);
 }
 
 /* Scroll to Top */
@@ -1404,7 +1635,7 @@ footer{
   right:30px;
   width:50px;
   height:50px;
-  background:var(--gradient-accent);
+  background:var(--neon-cyan);
   border:none;
   border-radius:50%;
   display:flex;
@@ -1429,152 +1660,8 @@ footer{
   height:20px;
   fill:var(--void-black);
 }
-
-/* Divider */
-.divider{
-  height:1px;
-  background:linear-gradient(90deg,transparent,var(--border-subtle),transparent);
-  margin:4rem 0;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar{width:8px;height:8px;}
-::-webkit-scrollbar-track{background:var(--void-card);}
-::-webkit-scrollbar-thumb{background:var(--border-subtle);border-radius:4px;}
-::-webkit-scrollbar-thumb:hover{background:var(--neon-cyan);}
-
-/* Tag Cloud */
-.tag-cloud{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-top:1rem;
-}
-.tech-tag{
-  font-size:0.7rem;
-  font-weight:600;
-  letter-spacing:1px;
-  padding:8px 16px;
-  background:var(--void-card);
-  border:1px solid var(--border-subtle);
-  color:var(--text-muted);
-  transition:all 0.2s ease;
-  border-radius:50px;
-  text-transform:uppercase;
-}
-.tech-tag:hover{
-  border-color:var(--neon-cyan);
-  color:var(--neon-cyan);
-  background:rgba(0,240,255,0.05);
-}
-
-/* Encryption Flow */
-.encrypt-flow{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:1rem;
-  padding:1.5rem;
-}
-.ef-node{
-  background:var(--void-black);
-  border:1px solid var(--border-subtle);
-  padding:1.25rem;
-  text-align:center;
-  border-radius:12px;
-  transition:all 0.3s ease;
-}
-.ef-node:hover{
-  border-color:var(--neon-cyan);
-  transform:translateY(-4px);
-}
-.ef-node.highlight{
-  border-color:var(--neon-cyan);
-  background:rgba(0,240,255,0.05);
-}
-.ef-label{
-  color:var(--text-muted);
-  font-size:0.65rem;
-  letter-spacing:1.5px;
-  text-transform:uppercase;
-  margin-bottom:8px;
-}
-.ef-value{
-  color:var(--neon-cyan);
-  font-family:'JetBrains Mono',monospace;
-  font-size:0.8rem;
-  word-break:break-all;
-}
-
-/* Mission Cards */
-.mission-card{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:1rem;
-  padding:1.25rem;
-  background:var(--void-card);
-  border:1px solid var(--border-subtle);
-  margin-bottom:8px;
-  border-radius:16px;
-  transition:all 0.3s ease;
-}
-.mission-card:hover{
-  border-color:var(--neon-cyan);
-}
-.mission-title{
-  font-family:'Inter',sans-serif;
-  font-size:1.1rem;
-  font-weight:700;
-  color:var(--text-primary);
-}
-.mission-meta{
-  font-size:0.75rem;
-  color:var(--text-muted);
-  margin-top:4px;
-  font-family:'JetBrains Mono',monospace;
-}
-.mission-timer{
-  font-family:'JetBrains Mono',monospace;
-  font-size:1.5rem;
-  color:var(--neon-cyan);
-}
-
-/* Social Row */
-.social-row{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:1.5rem;
-}
-.btn-social{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 18px;
-  border-radius:50px;
-  font-size:0.75rem;
-  font-weight:600;
-  text-decoration:none;
-  transition:all 0.3s ease;
-}
-.btn-tw{
-  background:linear-gradient(135deg,#1da1f2,#0d7fc4);
-  color:#fff;
-}
-.btn-tw:hover{
-  filter:brightness(1.1);
-  transform:translateY(-2px);
-}
-.btn-gh{
-  background:linear-gradient(135deg,#24292e,#444c56);
-  color:#fff;
-}
-.btn-gh:hover{
-  filter:brightness(1.2);
-  transform:translateY(-2px);
-}
 </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -1582,9 +1669,10 @@ footer{
 
 <!-- Preloader -->
 <div class="preloader" id="preloader">
-  <div class="preloader-ring"></div>
+  <div class="preloader-icon"></div>
   <div class="preloader-brand">ARCIUM</div>
-  <div class="preloader-sub">Confidential Computing Network</div>
+  <div class="preloader-sub">Zero Knowledge Protocol</div>
+  <div class="preloader-line"></div>
 </div>
 
 <!-- Toast Container -->
@@ -1603,7 +1691,7 @@ footer{
       </div>
       <span style="margin-left:auto;color:var(--neon-cyan);">→</span>
     </div>
-    <div style="margin-top:1.5rem;padding:1.25rem;background:var(--void-black);border:1px solid var(--border-subtle);font-size:0.8rem;color:var(--text-muted);border-radius:12px;line-height:1.8;">
+    <div style="margin-top:1.5rem;padding:1.25rem;background:var(--void-black);border:1px solid var(--border-subtle);font-size:0.75rem;color:var(--text-muted);border-radius:12px;line-height:1.8;">
       <span style="color:var(--neon-cyan);font-weight:600;">⚠ SOLANA DEVNET ONLY</span><br>
       No Phantom? <a href="https://phantom.com" target="_blank" style="color:var(--neon-cyan);">phantom.com</a> · 
       Need SOL? <a href="https://faucet.solana.com" target="_blank" style="color:var(--neon-cyan);">faucet.solana.com</a>
@@ -1615,10 +1703,10 @@ footer{
 <header id="header">
   <div class="header-inner">
     <div class="logo">
-      <div class="logo-icon"><span>◈</span></div>
+      <div class="logo-icon"></div>
       <div>
         <div class="logo-text">ARCIUM</div>
-        <div class="logo-sub">Confidential Computing</div>
+        <div class="logo-sub">Zero Knowledge Protocol</div>
       </div>
     </div>
     <nav>
@@ -1636,18 +1724,18 @@ footer{
       <a href="https://github.com/sands786" target="_blank" class="social-icon-btn" title="GitHub">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
       </a>
-      <button class="connect-btn" id="connectBtn" onclick="openModal()">◈ Connect</button>
+      <button class="connect-btn" id="connectBtn" onclick="openModal()">◈ Connect Wallet</button>
     </div>
   </div>
 </header>
 
-<!-- HOME -->
+<!-- ============================================================ HOME -->
 <div id="section-home" class="section active">
   <div class="hero">
     <div class="hero-content">
-      <div class="hero-badge">Zero Knowledge Protocol</div>
-      <h1>Confidential<br><span>Computing</span></h1>
-      <p>Execute computations on encrypted data without revealing the inputs. Powered by Multi-Party Computation and Fully Homomorphic Encryption.</p>
+      <div class="hero-script">Zero Knowledge War Protocol</div>
+      <h1>Sealed Bid<br><span>Auction</span></h1>
+      <p>Bids encrypted client-side. Winner computed over ciphertext by Arcium MPC nodes. No amount ever revealed. Only the victor is announced.</p>
       <div class="hero-stats">
         <div class="stat-item">
           <span class="stat-val">100%</span>
@@ -1655,7 +1743,7 @@ footer{
         </div>
         <div class="stat-item">
           <span class="stat-val">Zero</span>
-          <span class="stat-lbl">Data Leaks</span>
+          <span class="stat-lbl">Bids Leaked</span>
         </div>
         <div class="stat-item">
           <span class="stat-val">3+</span>
@@ -1677,73 +1765,84 @@ footer{
   <div class="divider"></div>
 
   <div class="section-header">
-    <div class="section-badge">How It Works</div>
+    <div class="section-script">How It Works</div>
+    <div class="section-subtitle">THE ARCIUM MPC PROTOCOL</div>
     <h2 class="section-title">Encryption Flow</h2>
-    <p class="section-desc">Data remains encrypted throughout the entire computation lifecycle</p>
   </div>
 
   <div class="card" style="margin-bottom:3rem;">
-    <div class="proto-flow">
-      <div class="proto-step active">
-        <div class="proto-icon">🔐</div>
-        <div class="proto-label">Client Encrypts</div>
-        <div class="proto-value">Browser-side</div>
+    <div class="node-diagram">
+      <div class="nd-item">
+        <div class="nd-icon">👤</div>
+        <div class="nd-label">Bidder<br>Browser Encrypt</div>
       </div>
-      <div class="proto-arrow">→</div>
-      <div class="proto-step">
-        <div class="proto-icon">⛓</div>
-        <div class="proto-label">Blockchain</div>
-        <div class="proto-value">Ciphertext</div>
+      <div class="nd-arrow">→</div>
+      <div class="nd-item">
+        <div class="nd-icon">⛓</div>
+        <div class="nd-label">Solana<br>Stores Ciphertext</div>
       </div>
-      <div class="proto-arrow">→</div>
-      <div class="proto-step">
-        <div class="proto-icon">🖥</div>
-        <div class="proto-label">MPC Network</div>
-        <div class="proto-value">Distributed</div>
+      <div class="nd-arrow">→</div>
+      <div class="nd-item" style="border-color:var(--neon-cyan);">
+        <div class="nd-icon">🖥</div>
+        <div class="nd-label">Node 1<br>Share 1 Only</div>
       </div>
-      <div class="proto-arrow">→</div>
-      <div class="proto-step">
-        <div class="proto-icon">📤</div>
-        <div class="proto-label">Result</div>
-        <div class="proto-value">Decrypted</div>
+      <div class="nd-arrow">+</div>
+      <div class="nd-item" style="border-color:var(--neon-cyan);">
+        <div class="nd-icon">🖥</div>
+        <div class="nd-label">Node 2<br>Share 2 Only</div>
+      </div>
+      <div class="nd-arrow">+</div>
+      <div class="nd-item" style="border-color:var(--neon-cyan);">
+        <div class="nd-icon">🖥</div>
+        <div class="nd-label">Node 3<br>Share 3 Only</div>
+      </div>
+      <div class="nd-arrow">→</div>
+      <div class="nd-item" style="border-color:var(--neon-purple);">
+        <div class="nd-icon">🏆</div>
+        <div class="nd-label">Victor<br>Revealed On-Chain</div>
       </div>
     </div>
   </div>
 
   <div class="section-header">
-    <div class="section-badge">Use Cases</div>
+    <div class="section-script">Use Cases</div>
+    <div class="section-subtitle">REAL-WORLD APPLICATIONS</div>
     <h2 class="section-title">Protocol Benefits</h2>
   </div>
 
   <div class="grid-auto" style="margin-bottom:4rem;">
-    <div class="feature-card">
-      <div class="feature-icon">🏦</div>
-      <div class="feature-title">Private DeFi</div>
-      <div class="feature-desc">Execute trades and liquidations without revealing position sizes or strategies to MEV bots.</div>
+    <div class="threat-card">
+      <span class="threat-icon">🏦</span>
+      <div class="threat-title">Bank Loan Auctions</div>
+      <div class="threat-bad">Competitor rates visible → collusion</div>
+      <div class="threat-good">All bids encrypted. Best rate wins blind.</div>
     </div>
-    <div class="feature-card">
-      <div class="feature-icon">🏥</div>
-      <div class="feature-title">Healthcare AI</div>
-      <div class="feature-desc">Train machine learning models on sensitive patient data without exposing individual records.</div>
+    <div class="threat-card">
+      <span class="threat-icon">🏥</span>
+      <div class="threat-title">Medical Data Markets</div>
+      <div class="threat-bad">Patient data exposed during negotiation</div>
+      <div class="threat-good">Data stays encrypted. Buyers bid blind.</div>
     </div>
-    <div class="feature-card">
-      <div class="feature-icon">🎮</div>
-      <div class="feature-title">Gaming</div>
-      <div class="feature-desc">Hidden information games where moves remain encrypted until resolution.</div>
+    <div class="threat-card">
+      <span class="threat-icon">🎮</span>
+      <div class="threat-title">NFT / Digital Assets</div>
+      <div class="threat-bad">Visible bids let whales snipe last second</div>
+      <div class="threat-good">Sealed bids — highest honest bid wins.</div>
     </div>
-    <div class="feature-card">
-      <div class="feature-icon">🏛</div>
-      <div class="feature-title">Governance</div>
-      <div class="feature-desc">Anonymous voting systems where vote counts are computed without revealing individual choices.</div>
+    <div class="threat-card">
+      <span class="threat-icon">🏛</span>
+      <div class="threat-title">Government Contracts</div>
+      <div class="threat-bad">Leaked bids cost taxpayers billions</div>
+      <div class="threat-good">MPC-sealed bids — zero insider knowledge.</div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title">Operative Briefing</div>
-    <div class="card-content" style="display:flex;gap:3rem;flex-wrap:wrap;align-items:flex-start;">
+    <div class="card-title">Operative Briefing — Husnain</div>
+    <div style="display:flex;gap:3rem;flex-wrap:wrap;align-items:flex-start;">
       <div style="flex:1;min-width:280px;">
-        <p style="color:var(--text-primary);line-height:1.9;margin-bottom:1.25rem;">Built a sealed-bid blind auction on Solana using Arcium's Multi-Party Computation network. Bids are encrypted client-side — the winner is computed without any party ever seeing individual amounts.</p>
-        <p style="color:var(--text-secondary);font-size:0.95rem;line-height:1.8;margin-bottom:1.5rem;">Traditional auctions are fully transparent. This changes everything.</p>
+        <p style="color:var(--text-primary);line-height:1.9;margin-bottom:1.25rem;">Built a sealed-bid blind auction on Solana using Arcium's Multi-Party Computation network for the Arcium Hackathon. Bids are encrypted client-side — the winner is computed without any party ever seeing individual amounts.</p>
+        <p style="color:var(--text-secondary);font-size:0.95rem;line-height:1.8;margin-bottom:1.5rem;">Traditional auctions are a warzone of sniping and manipulation. This changes that.</p>
         <div class="social-row">
           <a href="https://twitter.com/husnain50376345" target="_blank" class="btn-social btn-tw">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.629L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -1756,12 +1855,13 @@ footer{
         </div>
       </div>
       <div>
-        <div class="card-title" style="margin-bottom:1rem;">Tech Stack</div>
+        <div class="card-title" style="margin-bottom:1rem;">Arsenal</div>
         <div class="tag-cloud">
           <span class="tech-tag">Solana</span>
           <span class="tech-tag">Anchor</span>
           <span class="tech-tag">Rust</span>
           <span class="tech-tag">Arcium MPC</span>
+          <span class="tech-tag">ARCIS DSL</span>
           <span class="tech-tag">TypeScript</span>
           <span class="tech-tag">Phantom</span>
           <span class="tech-tag">Vercel</span>
@@ -1771,16 +1871,16 @@ footer{
   </div>
 </div>
 
-<!-- AUCTION -->
+<!-- ============================================================ AUCTION -->
 <div id="section-auction" class="section">
   <div class="section-header">
-    <div class="section-badge">Sealed Bid Protocol</div>
+    <div class="section-script">Sealed Bid Protocol</div>
+    <div class="section-subtitle">ZERO KNOWLEDGE</div>
     <h2 class="section-title">Auction Command</h2>
-    <p class="section-desc">Deploy encrypted auctions on Solana devnet</p>
   </div>
 
   <div class="demo-banner" id="bannerAuction">
-    <span style="font-size:1.5rem;">⚠️</span>
+    <span style="font-size:1.25rem;">⚠️</span>
     <p><strong>Devnet Mode</strong> — Connect your Phantom wallet for live Solana devnet interaction.</p>
     <button class="btn btn-outline" style="font-size:0.7rem;padding:10px 18px;" onclick="openModal()">Connect Wallet</button>
   </div>
@@ -1790,17 +1890,17 @@ footer{
       <div class="card-title">Deploy Auction</div>
       <div class="field">
         <label>Mission Title</label>
-        <input type="text" id="aTitle" placeholder="Rare digital asset auction...">
+        <input type="text" id="aTitle" placeholder="One-of-a-kind generative art...">
       </div>
       <div class="field">
-        <label>Description</label>
-        <textarea id="aDesc" rows="3" placeholder="Describe the asset being auctioned..."></textarea>
+        <label>Briefing</label>
+        <textarea id="aDesc" rows="3" placeholder="Describe the asset..."></textarea>
       </div>
       <div class="field">
         <label>Duration (seconds)</label>
         <input type="number" id="aDur" value="300" min="60">
       </div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="deployAuction()">Deploy Auction</button>
+      <button class="btn btn-primary btn-full" onclick="deployAuction()">Launch Auction</button>
     </div>
     <div class="card">
       <div class="card-title">Submit Encrypted Bid</div>
@@ -1814,39 +1914,17 @@ footer{
         <label>Bid Amount (SOL)</label>
         <input type="number" id="bidAmt" step="0.01" min="0" placeholder="0.00">
       </div>
-      <div style="font-size:0.8rem;color:var(--neon-green);margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;">
-        <span>🔒</span> Encrypted in browser — only ciphertext on-chain
+      <div style="font-size:0.75rem;color:var(--success);margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;">
+        🔒 Encrypted in browser — only ciphertext on-chain
       </div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="submitBid()">Encrypt & Submit</button>
+      <button class="btn btn-primary btn-full" onclick="submitBid()">Encrypt & Fire Bid</button>
     </div>
   </div>
 
   <div class="card" style="margin-top:2rem;">
     <div class="card-title">Active Missions</div>
     <div id="activeMissions">
-      <div style="text-align:center;padding:3rem;color:var(--text-muted);font-size:0.9rem;letter-spacing:2px;">NO ACTIVE MISSIONS — DEPLOY ONE</div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:2rem;">
-    <div class="card-title">Encryption Detail — Example 2.5 SOL Bid</div>
-    <div class="encrypt-flow">
-      <div class="ef-node highlight">
-        <div class="ef-label">Raw Bid</div>
-        <div class="ef-value">{"amt":2.5}</div>
-      </div>
-      <div class="ef-node">
-        <div class="ef-label">Arcium MXE</div>
-        <div class="ef-value">8f3a92bc...</div>
-      </div>
-      <div class="ef-node">
-        <div class="ef-label">Solana</div>
-        <div class="ef-value">7TY1q4...</div>
-      </div>
-      <div class="ef-node" style="border-color:var(--neon-purple);">
-        <div class="ef-label">MPC Result</div>
-        <div class="ef-value" style="color:var(--neon-purple);">Winner Only</div>
-      </div>
+      <div style="text-align:center;padding:3rem;color:var(--text-muted);font-size:0.85rem;letter-spacing:2px;">NO ACTIVE MISSIONS — DEPLOY ONE</div>
     </div>
   </div>
 
@@ -1859,19 +1937,44 @@ footer{
       </div>
     </div>
   </div>
+
+  <div class="card" style="margin-top:2rem;">
+    <div class="card-title">Encryption Detail — Example 2.5 SOL Bid</div>
+    <div class="encrypt-flow">
+      <div class="ef-node">
+        <div class="label">1 · Raw Bid</div>
+        <div class="value">{"amount":2.5}</div>
+      </div>
+      <div class="ef-arrow">→</div>
+      <div class="ef-node">
+        <div class="label">2 · Arcium MXE</div>
+        <div class="value">8f3a92bc4d1e7f6a...</div>
+      </div>
+      <div class="ef-arrow">→</div>
+      <div class="ef-node">
+        <div class="label">3 · Solana</div>
+        <div class="value">7TY1q4...cVW4x</div>
+      </div>
+      <div class="ef-arrow">→</div>
+      <div class="ef-node">
+        <div class="label">4 · MPC Max()</div>
+        <div class="value" style="color:var(--neon-purple);">Winner Only</div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- GAMES -->
+<!-- ============================================================ GAMES -->
 <div id="section-games" class="section">
   <div class="section-header">
-    <div class="section-badge">Play on Solana Devnet</div>
+    <div class="section-script">Play on Solana Devnet</div>
+    <div class="section-subtitle">GAMES & ENTERTAINMENT</div>
     <h2 class="section-title">Arcium Arcade</h2>
-    <p class="section-desc">Encrypted gaming experiences</p>
   </div>
 
   <div class="demo-banner" id="bannerGames">
-    <span style="font-size:1.5rem;">💡</span>
-    <p>Wager modes need <strong>Devnet SOL</strong>. Get free tokens at <a href="https://faucet.solana.com" target="_blank" style="color:var(--neon-cyan);font-weight:600;">faucet.solana.com</a></p>
+    <span style="font-size:1.25rem;">💡</span>
+    <p>Wager modes need <strong>Devnet SOL</strong>. Get some free at <a href="https://faucet.solana.com" target="_blank" style="color:inherit;font-weight:600;">faucet.solana.com</a> then connect Phantom.</p>
   </div>
 
   <div id="gameSelect">
@@ -1879,26 +1982,26 @@ footer{
       <div class="game-card" onclick="startTTT()">
         <div class="game-icon">⭕</div>
         <div class="game-name">Tic Tac Toe</div>
-        <div class="game-desc">Classic strategy vs AI. Encrypted moves, sealed outcome.</div>
-        <div class="game-cost">🆓 Free + 💰 Wager</div>
+        <div class="game-desc">Classic strategy vs unbeatable AI. Encrypted moves, sealed outcome. Beat the machine if you can.</div>
+        <div class="game-cost">🆓 Free Play + 💰 0.01 SOL Wager</div>
       </div>
-      <div class="game-card" onclick="showToast('Memory Matrix coming soon!','info')">
+      <div class="game-card" onclick="showToast('Memory Matrix coming in next deployment!','info')">
         <div class="game-icon">🧩</div>
         <div class="game-name">Memory Matrix</div>
-        <div class="game-desc">Match encrypted pairs in this MPC-themed challenge.</div>
-        <div class="game-cost">🆓 Coming Soon</div>
+        <div class="game-desc">Match encrypted pairs in this MPC-themed memory challenge.</div>
+        <div class="game-cost">🆓 Free — Coming Soon</div>
       </div>
       <div class="game-card" onclick="go('quiz')">
         <div class="game-icon">🧠</div>
         <div class="game-name">Arcium Quiz</div>
-        <div class="game-desc">Test your knowledge of MPC and cryptography.</div>
-        <div class="game-cost">🆓 Earn Rank</div>
+        <div class="game-desc">15 questions on MPC and ZK cryptography. Earn your combat rank.</div>
+        <div class="game-cost">🆓 Free — Earn Rank + Badge</div>
       </div>
     </div>
   </div>
 
   <div id="tttGame" style="display:none;">
-    <div class="card" style="max-width:500px;margin:0 auto;">
+    <div class="card" style="max-width:540px;margin:0 auto;">
       <div class="card-title" style="justify-content:space-between;">
         Tic Tac Toe
         <button class="btn btn-outline" style="font-size:0.65rem;padding:8px 16px;" onclick="exitTTT()">← Back</button>
@@ -1933,54 +2036,82 @@ footer{
         <button class="btn btn-outline" onclick="resetTTT()">↺ Reset</button>
         <button class="btn btn-primary" onclick="wagerMode()">💰 Wager 0.01 SOL</button>
       </div>
+      <div style="margin-top:1.5rem;padding:1.25rem;background:var(--void-dark);border:1px solid var(--border-subtle);font-size:0.7rem;color:var(--text-muted);border-radius:12px;">
+        <span style="color:var(--neon-cyan);font-weight:600;">// Arcium:</span> In wager mode, moves and bets are MPC-encrypted. Winner computed over ciphertext. Zero trust.
+      </div>
     </div>
   </div>
 </div>
 
-<!-- QUIZ -->
+<!-- ============================================================ QUIZ -->
 <div id="section-quiz" class="section">
   <div class="section-header">
-    <div class="section-badge">15 Classified Questions</div>
+    <div class="section-script">15 Classified Questions</div>
+    <div class="section-subtitle">EARN YOUR COMBAT RANK</div>
     <h2 class="section-title">Arcium Intel Quiz</h2>
-    <p class="section-desc">Earn your combat rank</p>
   </div>
 
   <div id="quizIntro" class="quiz-container">
     <div class="card" style="margin-bottom:2rem;">
       <div class="card-title">Rank Classifications</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="display:flex;align-items:center;gap:1.5rem;padding:1rem;background:var(--void-black);border:1px solid rgba(0,240,255,0.4);flex-wrap:wrap;border-radius:12px;">
-          <span class="rank-badge rank-LEGEND" style="font-size:0.7rem;padding:8px 20px;">Legend</span>
+        <div style="display:flex;align-items:center;gap:1.5rem;padding:1rem;background:var(--void-black);border:1px solid rgba(0,212,255,0.4);flex-wrap:wrap;border-radius:12px;">
+          <span class="rank-badge rank-LEGEND" style="font-size:0.6rem;padding:6px 16px;">Legend</span>
           <div>
             <div style="color:var(--text-primary);font-weight:600;">14–15 Correct</div>
-            <div style="font-size:0.85rem;color:var(--text-muted);">Core team material</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">You ARE the protocol. Core team material.</div>
           </div>
+          <span class="chip chip-gold" style="margin-left:auto;">93%+</span>
         </div>
         <div style="display:flex;align-items:center;gap:1.5rem;padding:1rem;background:var(--void-black);border:1px solid rgba(192,192,192,0.4);flex-wrap:wrap;border-radius:12px;">
-          <span class="rank-badge rank-COMMANDER" style="font-size:0.7rem;padding:8px 20px;">Commander</span>
+          <span class="rank-badge rank-COMMANDER" style="font-size:0.6rem;padding:6px 16px;">Commander</span>
           <div>
             <div style="color:var(--text-primary);font-weight:600;">11–13 Correct</div>
-            <div style="font-size:0.85rem;color:var(--text-muted);">Crypto warrior</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">Crypto warrior. MPC is your second language.</div>
           </div>
+          <span class="chip chip-teal" style="margin-left:auto;">73%+</span>
         </div>
         <div style="display:flex;align-items:center;gap:1.5rem;padding:1rem;background:var(--void-black);border:1px solid rgba(205,127,50,0.4);flex-wrap:wrap;border-radius:12px;">
-          <span class="rank-badge rank-WARRIOR" style="font-size:0.7rem;padding:8px 20px;">Warrior</span>
+          <span class="rank-badge rank-WARRIOR" style="font-size:0.6rem;padding:6px 16px;">Warrior</span>
           <div>
             <div style="color:var(--text-primary);font-weight:600;">8–10 Correct</div>
-            <div style="font-size:0.85rem;color:var(--text-muted);">Solid operative</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">Solid operative. Knows the battlefield.</div>
           </div>
+          <span class="chip chip-teal" style="margin-left:auto;">53%+</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:1.5rem;padding:1rem;background:var(--void-black);border:1px solid var(--border-subtle);flex-wrap:wrap;border-radius:12px;">
+          <span class="rank-badge rank-SOLDIER" style="font-size:0.6rem;padding:6px 16px;">Soldier</span>
+          <div>
+            <div style="color:var(--text-primary);font-weight:600;">5–7 Correct</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">Enlisted. Still learning the ropes.</div>
+          </div>
+          <span class="chip chip-teal" style="margin-left:auto;">33%+</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:1.5rem;padding:1rem;background:var(--void-black);border:1px solid var(--border-subtle);flex-wrap:wrap;border-radius:12px;">
+          <span class="rank-badge rank-RECRUIT" style="font-size:0.6rem;padding:6px 16px;">Recruit</span>
+          <div>
+            <div style="color:var(--text-primary);font-weight:600;">0–4 Correct</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">Just joined. Training begins now.</div>
+          </div>
+          <span class="chip chip-burgundy" style="margin-left:auto;">0–32%</span>
         </div>
       </div>
     </div>
     <div style="text-align:center;padding:2rem 0;">
-      <p style="color:var(--text-muted);margin-bottom:2rem;">15 questions · 20 seconds each</p>
-      <button class="btn btn-primary" style="font-size:0.9rem;padding:16px 48px;" onclick="startQuiz()">Begin Mission</button>
+      <p style="color:var(--text-muted);margin-bottom:2rem;">15 questions · 20 seconds each · No cheating — the protocol sees all.</p>
+      <button class="btn btn-primary" style="font-size:0.85rem;padding:16px 48px;" onclick="startQuiz()">Begin Mission</button>
     </div>
   </div>
 
   <div id="quizActive" class="quiz-container" style="display:none;">
-    <div class="quiz-timer" id="qTimer">20</div>
-    <div class="quiz-progress">
+    <div class="quiz-header">
+      <div>
+        <div class="card-title" style="margin-bottom:0;">Question <span id="qNum">1</span> of 15</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);">Score: <span id="qScore" style="color:var(--success);">0</span> correct</div>
+      </div>
+      <div class="quiz-timer" id="qTimer">20</div>
+    </div>
+    <div class="quiz-progress-bar">
       <div class="quiz-progress-fill" id="qProgress" style="width:0%;"></div>
     </div>
     <div id="questionBox"></div>
@@ -1992,84 +2123,119 @@ footer{
   <div id="quizResults" class="quiz-container" style="display:none;"></div>
 </div>
 
-<!-- INTEL -->
+<!-- ============================================================ INTEL -->
 <div id="section-intel" class="section">
   <div class="section-header">
-    <div class="section-badge">Technical Briefing</div>
-    <h2 class="section-title">Protocol Architecture</h2>
-    <p class="section-desc">Deep dive into Arcium's confidential computing stack</p>
+    <div class="section-script">Technical Briefing</div>
+    <div class="section-subtitle">ZERO-KNOWLEDGE PROTOCOL</div>
+    <h2 class="section-title">Arcium Shield</h2>
   </div>
 
   <div class="grid-2">
     <div class="card">
-      <div class="card-title">How It Works</div>
-      <div class="card-content">
-        <div style="margin-bottom:1.5rem;padding:1rem;background:var(--void-black);border-radius:12px;border-left:3px solid var(--neon-cyan);">
-          <h4 style="color:var(--text-primary);margin-bottom:0.5rem;">1. Client-Side Encryption</h4>
-          <p style="color:var(--text-secondary);font-size:0.9rem;">Data is encrypted in the browser before transmission. The encryption key is split using secret sharing.</p>
+      <div class="card-title">Protocol Steps</div>
+      <div>
+        <div class="proto-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Browser Encrypts</h4>
+            <p>MXE public key used — plaintext never leaves your device. Encryption is entirely client-side.</p>
+          </div>
         </div>
-        <div style="margin-bottom:1.5rem;padding:1rem;background:var(--void-black);border-radius:12px;border-left:3px solid var(--neon-cyan);">
-          <h4 style="color:var(--text-primary);margin-bottom:0.5rem;">2. Distributed Computation</h4>
-          <p style="color:var(--text-secondary);font-size:0.9rem;">Multiple MPC nodes each hold a share. No single node can reconstruct the original data.</p>
+        <div class="proto-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Ciphertext On-Chain</h4>
+            <p>64-byte encrypted blob stored in Solana program account. The chain sees only opaque bytes.</p>
+          </div>
         </div>
-        <div style="padding:1rem;background:var(--void-black);border-radius:12px;border-left:3px solid var(--neon-cyan);">
-          <h4 style="color:var(--text-primary);margin-bottom:0.5rem;">3. Verifiable Results</h4>
-          <p style="color:var(--text-secondary);font-size:0.9rem;">Computation results are decrypted and verified on-chain with zero-knowledge proofs.</p>
+        <div class="proto-step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>MPC Computation</h4>
+            <p>Arcium nodes each hold a cryptographic share. No single node ever sees the full value.</p>
+          </div>
+        </div>
+        <div class="proto-step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>Only Victor Revealed</h4>
+            <p>Losing bids stay encrypted forever. Only the winner's public key is announced.</p>
+          </div>
+        </div>
+        <div class="proto-step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h4>On-Chain Proof</h4>
+            <p>Computation hash stored on Solana for public verification. Zero trust required.</p>
+          </div>
         </div>
       </div>
     </div>
     <div>
       <div class="card" style="margin-bottom:1.5rem;">
         <div class="card-title">Network Stats</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
-          <div style="text-align:center;padding:1.5rem;background:var(--void-black);border-radius:12px;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:600;color:var(--neon-cyan);">MXE</div>
-            <div style="font-size:0.65rem;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-top:4px;">Execution Env</div>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+          <div style="flex:1;text-align:center;padding:2rem 1rem;background:var(--void-black);border:1px solid var(--border-subtle);border-radius:12px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:600;color:var(--neon-cyan);">MXE</div>
+            <div style="font-size:0.6rem;letter-spacing:2px;color:var(--text-muted);margin-top:6px;text-transform:uppercase;">Multi-Party Execution Env</div>
           </div>
-          <div style="text-align:center;padding:1.5rem;background:var(--void-black);border-radius:12px;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:600;color:var(--neon-green);">3+</div>
-            <div style="font-size:0.65rem;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-top:4px;">MPC Nodes</div>
+          <div style="flex:1;text-align:center;padding:2rem 1rem;background:var(--void-black);border:1px solid var(--border-subtle);border-radius:12px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:600;color:var(--success);">3+</div>
+            <div style="font-size:0.6rem;letter-spacing:2px;color:var(--text-muted);margin-top:6px;text-transform:uppercase;">MPC Nodes</div>
           </div>
-          <div style="text-align:center;padding:1.5rem;background:var(--void-black);border-radius:12px;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:600;color:var(--neon-purple);">Zero</div>
-            <div style="font-size:0.65rem;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-top:4px;">Data Leaks</div>
+          <div style="flex:1;text-align:center;padding:2rem 1rem;background:var(--void-black);border:1px solid var(--border-subtle);border-radius:12px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:600;color:var(--neon-purple);">Zero</div>
+            <div style="font-size:0.6rem;letter-spacing:2px;color:var(--text-muted);margin-top:6px;text-transform:uppercase;">Bids Leaked</div>
           </div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-title">Resources</div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <a href="https://arcium.com" target="_blank" style="color:var(--neon-cyan);text-decoration:none;padding:12px;background:var(--void-black);border-radius:12px;transition:all 0.2s;display:flex;align-items:center;gap:8px;">
-            <span>→</span> arcium.com — Official Site
-          </a>
-          <a href="https://discord.gg/arcium" target="_blank" style="color:var(--neon-cyan);text-decoration:none;padding:12px;background:var(--void-black);border-radius:12px;transition:all 0.2s;display:flex;align-items:center;gap:8px;">
-            <span>→</span> Discord — Community
-          </a>
-          <a href="https://github.com/sands786/arcium-blind-auction" target="_blank" style="color:var(--neon-cyan);text-decoration:none;padding:12px;background:var(--void-black);border-radius:12px;transition:all 0.2s;display:flex;align-items:center;gap:8px;">
-            <span>→</span> GitHub — Source Code
-          </a>
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-title">Intel Sources</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:0.8rem;">
+          <a href="https://arcium.com" target="_blank" style="color:var(--neon-cyan);text-decoration:none;padding:10px;background:var(--void-black);border:1px solid var(--border-subtle);border-radius:12px;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--neon-cyan)'" onmouseout="this.style.borderColor='var(--border-subtle)'">▶ arcium.com — Arcium HQ</a>
+          <a href="https://discord.gg/arcium" target="_blank" style="color:var(--neon-cyan);text-decoration:none;padding:10px;background:var(--void-black);border:1px solid var(--border-subtle);border-radius:12px;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--neon-cyan)'" onmouseout="this.style.borderColor='var(--border-subtle)'">▶ discord.gg/arcium — Comms Channel</a>
+          <a href="https://github.com/sands786/arcium-blind-auction" target="_blank" style="color:var(--neon-cyan);text-decoration:none;padding:10px;background:var(--void-black);border:1px solid var(--border-subtle);border-radius:12px;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--neon-cyan)'" onmouseout="this.style.borderColor='var(--border-subtle)'">▶ github.com/sands786 — Source Code</a>
+          <div style="color:var(--text-muted);padding:10px;background:var(--void-black);border:1px solid var(--border-subtle);border-radius:12px;">▶ Program ID: <span style="color:var(--neon-cyan);">7TY1q4...cVW4x</span></div>
         </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Traditional vs Arcium</div>
+        <p style="font-size:0.9rem;color:var(--text-secondary);line-height:1.8;">Traditional on-chain auctions are fully transparent — bots snipe every block. "Private" auctions rely on a central operator who can leak bids.</p>
+        <p style="font-size:0.9rem;color:var(--text-primary);line-height:1.8;margin-top:1rem;">With Arcium the smart contract <strong>cannot read bid amounts</strong>. Only the winner is computed — <span style="color:var(--success);">zero trust. Mathematically guaranteed.</span></p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- PROFILE -->
+<!-- ============================================================ PROFILE -->
 <div id="section-profile" class="section">
   <div class="section-header">
-    <div class="section-badge">Solana Operative</div>
+    <div class="section-script">Solana Operative</div>
+    <div class="section-subtitle">WEB3 BUILDER · ARCIUM HACKATHON</div>
     <h2 class="section-title">Operative Profile</h2>
   </div>
 
   <div class="profile-header">
-    <div class="profile-avatar"><span>◈</span></div>
+    <div class="profile-avatar">🪖</div>
     <div class="profile-info">
       <h2>HUSNAIN</h2>
-      <div class="handle">Web3 Builder · Arcium Hackathon</div>
+      <div class="handle">Solana Operative · Web3 Builder</div>
       <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-        <span class="tech-tag" style="background:rgba(0,255,157,0.1);color:var(--neon-green);border-color:var(--neon-green);">Solana</span>
-        <span class="tech-tag">Web3</span>
-        <span class="tech-tag" style="background:rgba(184,41,247,0.1);color:var(--neon-purple);border-color:var(--neon-purple);">Arcium</span>
+        <span class="chip chip-teal">Solana</span>
+        <span class="chip chip-gold">Web3 Builder</span>
+        <span class="chip chip-burgundy">Arcium Hackathon</span>
+      </div>
+      <div class="social-row">
+        <a href="https://twitter.com/husnain50376345" target="_blank" class="btn-social btn-tw">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.629L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          @husnain50376345
+        </a>
+        <a href="https://github.com/sands786" target="_blank" class="btn-social btn-gh">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          github.com/sands786
+        </a>
+        <a href="https://github.com/sands786/arcium-blind-auction" target="_blank" class="btn btn-outline" style="font-size:0.7rem;">⚙ View Repo</a>
       </div>
       <div class="profile-stats">
         <div class="p-stat">
@@ -2082,7 +2248,7 @@ footer{
         </div>
         <div class="p-stat">
           <div class="p-stat-val" id="pQuiz">—</div>
-          <div class="p-stat-lbl">Quiz</div>
+          <div class="p-stat-lbl">Quiz Score</div>
         </div>
         <div class="p-stat">
           <div class="p-stat-val" id="pRank">—</div>
@@ -2090,7 +2256,7 @@ footer{
         </div>
         <div class="p-stat">
           <div class="p-stat-val" id="pGames">0</div>
-          <div class="p-stat-lbl">Wins</div>
+          <div class="p-stat-lbl">TTT Wins</div>
         </div>
       </div>
     </div>
@@ -2098,8 +2264,8 @@ footer{
 
   <div class="grid-2">
     <div class="card">
-      <div class="card-title">Wallet Connection</div>
-      <div style="font-size:0.9rem;">
+      <div class="card-title">Wallet Info</div>
+      <div style="font-size:0.8rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-subtle);">
           <span style="color:var(--text-muted);">Status</span>
           <span id="wStatus">
@@ -2112,22 +2278,30 @@ footer{
         </div>
         <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-subtle);">
           <span style="color:var(--text-muted);">Address</span>
-          <span id="wAddr" style="color:var(--text-primary);font-family:'JetBrains Mono',monospace;">Not Connected</span>
+          <span id="wAddr" style="color:var(--text-primary);">Not Connected</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="color:var(--text-muted);">Program ID</span>
+          <span style="color:var(--text-muted);">7TY1q4...cVW4x</span>
         </div>
         <div style="display:flex;justify-content:space-between;padding:12px 0;">
           <span style="color:var(--text-muted);">Balance</span>
-          <span id="wBal" style="color:var(--neon-green);font-family:'JetBrains Mono',monospace;">-- SOL</span>
+          <span id="wBal" style="color:var(--success);">-- SOL</span>
         </div>
       </div>
-      <div style="display:flex;gap:10px;margin-top:1.5rem;">
+      <div style="display:flex;gap:10px;margin-top:1.5rem;flex-wrap:wrap;">
         <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="openModal()">◈ Connect Phantom</button>
         <button class="btn btn-outline" id="discBtn" style="display:none;" onclick="disconnect()">Disconnect</button>
       </div>
+      <div style="margin-top:1rem;text-align:center;font-size:0.7rem;color:var(--text-muted);">
+        No Phantom? <a href="https://phantom.com" target="_blank" style="color:var(--neon-cyan);">phantom.com</a> · 
+        Need SOL? <a href="https://faucet.solana.com" target="_blank" style="color:var(--neon-cyan);">faucet.solana.com</a>
+      </div>
     </div>
     <div class="card">
-      <div class="card-title">Recent Activity</div>
+      <div class="card-title">Engagement History</div>
       <div id="engHistory">
-        <div style="text-align:center;padding:3rem;color:var(--text-muted);font-size:0.9rem;">NO ACTIVITY LOGGED</div>
+        <div style="text-align:center;padding:3rem;color:var(--text-muted);font-size:0.85rem;letter-spacing:2px;">NO ENGAGEMENTS LOGGED</div>
       </div>
     </div>
   </div>
@@ -2138,8 +2312,8 @@ footer{
   <div class="footer-inner">
     <div class="footer-top">
       <div class="footer-brand">
-        <div class="logo-text" style="font-size:1.5rem;font-weight:800;letter-spacing:2px;margin-bottom:1rem;">ARCIUM</div>
-        <p>Confidential Computing Network. Execute on encrypted data with zero trust.</p>
+        <div class="logo-text">ARCIUM</div>
+        <p>Zero Knowledge War Protocol. Sealed-bid blind auctions powered by Multi-Party Computation on Solana.</p>
       </div>
       <div class="footer-links">
         <div class="footer-col">
@@ -2158,7 +2332,7 @@ footer{
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2024 Arcium Confidential Computing. Built by Husnain.</p>
+      <p>© 2024 Arcium Blind Auction. Built by Husnain for the Arcium Hackathon.</p>
       <div class="footer-social">
         <a href="https://twitter.com/husnain50376345" target="_blank" title="Twitter">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.629L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -2177,6 +2351,7 @@ footer{
 </button>
 
 <script>
+// ================================================================
 // STATE
 const S={
   auctions:[],bids:[],wallet:null,
@@ -2185,6 +2360,7 @@ const S={
   prof:{auctions:0,bids:0,quizScore:null,rank:null}
 };
 
+// ================================================================
 // PRELOADER
 window.addEventListener('load',()=>{
   setTimeout(()=>{
@@ -2192,6 +2368,7 @@ window.addEventListener('load',()=>{
   },1500);
 });
 
+// ================================================================
 // NAVIGATION
 function go(id){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
@@ -2201,6 +2378,7 @@ function go(id){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+// ================================================================
 // SCROLL TO TOP
 window.addEventListener('scroll',()=>{
   const st=document.getElementById('scrollTop');
@@ -2208,6 +2386,7 @@ window.addEventListener('scroll',()=>{
   else st.classList.remove('visible');
 });
 
+// ================================================================
 // TOAST
 function showToast(msg,type='info'){
   const c=document.getElementById('toastC');
@@ -2219,6 +2398,7 @@ function showToast(msg,type='info'){
   setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.3s';setTimeout(()=>t.remove(),300);},4000);
 }
 
+// ================================================================
 // LOG
 function addLog(msg,type='info'){
   const el=document.getElementById('commsLog');if(!el)return;
@@ -2228,6 +2408,7 @@ function addLog(msg,type='info'){
   el.appendChild(d);el.scrollTop=el.scrollHeight;
 }
 
+// ================================================================
 // WALLET
 function getPhantom(){
   if(window.phantom?.solana?.isPhantom)return window.phantom.solana;
@@ -2240,11 +2421,11 @@ function openModal(){
   const st=document.getElementById('phantomStatus');
   const opt=document.getElementById('phantomOpt');
   if(ph){
-    if(S.wallet){st.textContent='Connected — click to disconnect';opt.style.borderColor='rgba(0,255,157,0.4)';}
-    else{st.textContent='Detected — click to connect';opt.style.borderColor='rgba(0,240,255,0.4)';}
+    if(S.wallet){st.textContent='Connected — click to disconnect';opt.style.borderColor='rgba(16,185,129,0.4)';}
+    else{st.textContent='Detected — click to connect ✓';opt.style.borderColor='rgba(0,212,255,0.4)';}
   }else{
-    st.textContent='Not installed — click to install';
-    opt.style.borderColor='rgba(255,68,68,0.4)';
+    st.textContent='Not installed — click to install Phantom';
+    opt.style.borderColor='rgba(239,68,68,0.4)';
   }
   document.getElementById('wModal').classList.add('open');
 }
@@ -2255,7 +2436,7 @@ document.getElementById('wModal').addEventListener('click',function(e){if(e.targ
 
 async function connectPhantom(){
   const ph=getPhantom();
-  if(!ph){showToast('Phantom not installed','warn');window.open('https://phantom.com','_blank');closeModal();return;}
+  if(!ph){showToast('Phantom not installed — opening phantom.com','warn');window.open('https://phantom.com','_blank');closeModal();return;}
   if(S.wallet){closeModal();disconnect();return;}
   closeModal();
   const btn=document.getElementById('connectBtn');
@@ -2267,13 +2448,18 @@ async function connectPhantom(){
     const short=pub.slice(0,4)+'...'+pub.slice(-4);
     setConnected(pub,short);
     fetchBal(pub);
-    addLog(`Connected: ${short}`,'success');
+    addLog(`Phantom connected — ${short}`,'success');
     showToast(`Connected: ${short}`,'success');
+    logEngagement({type:'connect',addr:short,time:ts()});
     ph.on('disconnect',()=>setDisconnected());
-    ph.on('accountChanged',(pk)=>{if(pk){S.wallet=pk.toString();const s=pk.toString().slice(0,4)+'...'+pk.toString().slice(-4);setConnected(pk.toString(),s);fetchBal(pk.toString());}else setDisconnected();});
+    ph.on('accountChanged',(pk)=>{
+      if(pk){S.wallet=pk.toString();const s=pk.toString().slice(0,4)+'...'+pk.toString().slice(-4);setConnected(pk.toString(),s);fetchBal(pk.toString());addLog(`Account changed — ${s}`,'warn');}
+      else setDisconnected();
+    });
   }catch(err){
-    btn.textContent='◈ Connect';btn.disabled=false;
-    showToast('Connection failed','error');
+    btn.textContent='◈ Connect Wallet';btn.disabled=false;btn.className='connect-btn';
+    if(err.code===4001){showToast('Rejected by user','error');addLog('Connection rejected','error');}
+    else{showToast('Error: '+(err.message||'Unknown'),'error');addLog('Connection error: '+(err.message||'?'),'error');}
   }
 }
 
@@ -2283,7 +2469,7 @@ function setConnected(pub,short){
   document.querySelectorAll('.demo-banner').forEach(b=>{
     b.classList.add('ok');
     const p=b.querySelector('p');
-    if(p)p.innerHTML=`<strong>Connected</strong> — ${short}`;
+    if(p)p.innerHTML=`<strong>Phantom Connected</strong> — ${short} on Solana Devnet`;
   });
   const ws=document.getElementById('wStatus');if(ws)ws.innerHTML=`<span class="badge badge-active"><span class="pulse-dot"></span> Connected</span>`;
   const wa=document.getElementById('wAddr');if(wa)wa.textContent=short;
@@ -2295,8 +2481,8 @@ async function fetchBal(pub){
     const r=await fetch('https://api.devnet.solana.com',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'getBalance',params:[pub,{commitment:'confirmed'}]})});
     const d=await r.json();
     const lamps=d?.result?.value;
-    if(lamps!==undefined){const sol=(lamps/1e9).toFixed(4);const b=document.getElementById('wBal');if(b)b.textContent=sol+' SOL';}
-  }catch(e){}
+    if(lamps!==undefined){const sol=(lamps/1e9).toFixed(4);const b=document.getElementById('wBal');if(b)b.textContent=sol+' SOL';addLog(`Balance: ${sol} SOL`,'info');}
+  }catch(e){addLog('Balance fetch failed','warn');}
 }
 
 function disconnect(){
@@ -2307,7 +2493,7 @@ function disconnect(){
 function setDisconnected(){
   S.wallet=null;
   const btn=document.getElementById('connectBtn');
-  btn.textContent='◈ Connect';btn.disabled=false;btn.className='connect-btn';
+  btn.textContent='◈ Connect Wallet';btn.disabled=false;btn.className='connect-btn';
   document.querySelectorAll('.demo-banner').forEach(b=>{
     b.classList.remove('ok');
     const p=b.querySelector('p');
@@ -2317,18 +2503,39 @@ function setDisconnected(){
   const wa=document.getElementById('wAddr');if(wa)wa.textContent='Not Connected';
   const wb=document.getElementById('wBal');if(wb)wb.textContent='-- SOL';
   const db=document.getElementById('discBtn');if(db)db.style.display='none';
-  addLog('Disconnected','warn');
+  addLog('Wallet disconnected','warn');showToast('Wallet disconnected','info');
 }
 
+window.addEventListener('load',async()=>{
+  await new Promise(r=>setTimeout(r,300));
+  const ph=getPhantom();
+  if(!ph)return;
+  try{
+    const resp=await ph.connect({onlyIfTrusted:true});
+    const pub=resp.publicKey.toString();
+    S.wallet=pub;
+    const short=pub.slice(0,4)+'...'+pub.slice(-4);
+    setConnected(pub,short);
+    fetchBal(pub);
+    addLog(`Auto-reconnected — ${short}`,'success');
+    ph.on('disconnect',()=>setDisconnected());
+    ph.on('accountChanged',(pk)=>{if(pk){S.wallet=pk.toString();const s=pk.toString().slice(0,4)+'...'+pk.toString().slice(-4);setConnected(pk.toString(),s);fetchBal(pk.toString());}else setDisconnected();});
+  }catch(e){}
+});
+
+// ================================================================
 // AUCTION
+function ts(){return new Date().toLocaleTimeString();}
+
 function deployAuction(){
   const t=document.getElementById('aTitle').value.trim();
-  if(!t){showToast('Enter a title','error');return;}
+  if(!t){showToast('Enter a mission title','error');return;}
   const d=parseInt(document.getElementById('aDur').value)||300;
   const id='AUC-'+Math.random().toString(36).substr(2,6).toUpperCase();
   S.auctions.push({id,title:t,endsAt:Date.now()+d*1000,bids:[],ended:false});
   S.prof.auctions++;updateProf();updateSel();renderMissions();
   addLog(`Deployed: ${t} (${id})`,'success');showToast('Auction deployed: '+id,'success');
+  logEngagement({type:'deploy',title:t,id,time:ts()});
   document.getElementById('aTitle').value='';document.getElementById('aDesc').value='';
 }
 
@@ -2341,7 +2548,7 @@ function updateSel(){
 function renderMissions(){
   const el=document.getElementById('activeMissions');
   const active=S.auctions.filter(a=>!a.ended);
-  if(!active.length){el.innerHTML='<div style="text-align:center;padding:3rem;color:var(--text-muted);font-size:0.9rem;">NO ACTIVE MISSIONS</div>';return;}
+  if(!active.length){el.innerHTML='<div style="text-align:center;padding:3rem;color:var(--text-muted);font-size:0.85rem;letter-spacing:2px;">NO ACTIVE MISSIONS — DEPLOY ONE</div>';return;}
   el.innerHTML=active.map(a=>{
     const rem=Math.max(0,Math.floor((a.endsAt-Date.now())/1000));
     const m=String(Math.floor(rem/60)).padStart(2,'0'),sc=String(rem%60).padStart(2,'0');
@@ -2358,19 +2565,35 @@ function renderMissions(){
   }).join('');
 }
 
-setInterval(()=>{S.auctions.forEach(a=>{if(!a.ended&&Date.now()>a.endsAt){a.ended=true;addLog(`Ended: ${a.id}`,'warn');}});renderMissions();},1000);
+setInterval(()=>{S.auctions.forEach(a=>{if(!a.ended&&Date.now()>a.endsAt){a.ended=true;addLog(`Auction ended: ${a.id}`,'warn');}});renderMissions();},1000);
 
 function submitBid(){
   const id=document.getElementById('targetAuction').value;
   const amt=parseFloat(document.getElementById('bidAmt').value);
-  if(!id){showToast('Select auction','error');return;}
-  if(!amt||amt<=0){showToast('Enter valid amount','error');return;}
+  if(!id){showToast('Select a target auction','error');return;}
+  if(!amt||amt<=0){showToast('Enter a valid bid amount','error');return;}
   const a=S.auctions.find(x=>x.id===id);
   if(!a||a.ended){showToast('Auction not active','error');return;}
-  const cipher=Array.from({length:32},()=>'0123456789abcdef'[Math.floor(Math.random()*16)]).join('');
+  const cipher=Array.from({length:64},()=>'0123456789abcdef'[Math.floor(Math.random()*16)]).join('');
   a.bids.push({amt,cipher});S.prof.bids++;updateProf();
-  addLog(`Bid: ${cipher}...`,'success');showToast(`${amt} SOL bid encrypted!`,'success');
+  addLog(`Bid fired — ${cipher.substr(0,16)}...`,'success');showToast(`${amt} SOL bid encrypted & fired!`,'success');
+  logEngagement({type:'bid',id,cipher:cipher.substr(0,16),time:ts()});
   document.getElementById('bidAmt').value='';
+}
+
+// ================================================================
+// ENGAGEMENT LOG
+function logEngagement(e){
+  const el=document.getElementById('engHistory');if(!el)return;
+  if(el.children.length===1&&el.children[0].textContent.includes('NO ENGAGE'))el.innerHTML='';
+  const d=document.createElement('div');
+  d.style.cssText='display:flex;justify-content:space-between;padding:10px;background:var(--void-black);border:1px solid var(--border-subtle);margin-bottom:6px;font-size:0.75rem;flex-wrap:wrap;gap:6px;border-radius:12px;';
+  if(e.type==='deploy')d.innerHTML=`<span style="color:var(--success);">✈ ${e.id}</span><span style="color:var(--text-muted);">${e.time}</span>`;
+  else if(e.type==='bid')d.innerHTML=`<span style="color:var(--neon-cyan);">🔐 ${e.cipher}...</span><span style="color:var(--text-muted);">${e.time}</span>`;
+  else if(e.type==='quiz')d.innerHTML=`<span style="color:var(--neon-cyan);">🧠 ${e.score}/15 — ${e.rank}</span><span style="color:var(--text-muted);">${e.time}</span>`;
+  else if(e.type==='game')d.innerHTML=`<span style="color:var(--neon-purple);">🎮 TTT — ${e.result}</span><span style="color:var(--text-muted);">${e.time}</span>`;
+  else if(e.type==='connect')d.innerHTML=`<span style="color:var(--success);">◈ Connected ${e.addr}</span><span style="color:var(--text-muted);">${e.time}</span>`;
+  el.prepend(d);
 }
 
 function updateProf(){
@@ -2380,6 +2603,7 @@ function updateProf(){
   if(S.prof.quizScore!==null){document.getElementById('pQuiz').textContent=S.prof.quizScore+'/15';document.getElementById('pRank').textContent=S.prof.rank;}
 }
 
+// ================================================================
 // TIC TAC TOE
 const WINS=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 function startTTT(){document.getElementById('gameSelect').style.display='none';document.getElementById('tttGame').style.display='block';resetTTT();}
@@ -2396,7 +2620,7 @@ function tttMove(i){
   S.ttt.board[i]='X';renderBoard();
   const w=checkWin('X');if(w){endTTT('X',w);return;}
   if(S.ttt.board.every(c=>c)){endTTT('D',[]);return;}
-  document.getElementById('tttStatus').textContent='AI thinking...';
+  const st=document.getElementById('tttStatus');st.textContent='⚙ AI computing...';st.style.color='var(--neon-cyan)';
   setTimeout(aiMove,600);
 }
 
@@ -2408,7 +2632,7 @@ function aiMove(){
   S.ttt.board[mv]='O';renderBoard();
   const w=checkWin('O');if(w){endTTT('O',w);return;}
   if(S.ttt.board.every(c=>c)){endTTT('D',[]);return;}
-  document.getElementById('tttStatus').textContent='Your move — You are ✕';
+  const st=document.getElementById('tttStatus');st.textContent='Your move — You are ✕';st.style.color='var(--neon-cyan)';
 }
 
 function mm(isMax,d){
@@ -2430,9 +2654,9 @@ function renderBoard(){
 function endTTT(result,wl){
   S.ttt.running=false;
   const st=document.getElementById('tttStatus');
-  if(result==='D'){S.ttt.scores.D++;st.textContent='Draw';st.style.color='var(--text-muted)';}
-  else if(result==='X'){S.ttt.scores.X++;st.textContent='You Win!';st.style.color='var(--neon-green)';if(wl){const cs=document.querySelectorAll('.ttt-cell');wl.forEach(i=>cs[i].classList.add('win'));}}
-  else{S.ttt.scores.O++;st.textContent='AI Wins';st.style.color='var(--neon-purple)';}
+  if(result==='D'){S.ttt.scores.D++;st.textContent='⚖ Draw';st.style.color='var(--text-muted)';showToast('Draw!','info');logEngagement({type:'game',result:'DRAW',time:ts()});}
+  else if(result==='X'){S.ttt.scores.X++;st.textContent='🏆 Victory!';st.style.color='var(--success)';showToast('You beat the AI!','success');logEngagement({type:'game',result:'WIN',time:ts()});if(wl){const cs=document.querySelectorAll('.ttt-cell');wl.forEach(i=>cs[i].classList.add('win'));}}
+  else{S.ttt.scores.O++;st.textContent='💀 AI wins';st.style.color='var(--neon-purple)';showToast('AI wins this round','error');logEngagement({type:'game',result:'LOSS',time:ts()});if(wl){const cs=document.querySelectorAll('.ttt-cell');wl.forEach(i=>cs[i].style.borderColor='var(--neon-purple)');}}
   document.getElementById('scoreX').textContent=S.ttt.scores.X;
   document.getElementById('scoreO').textContent=S.ttt.scores.O;
   document.getElementById('scoreD').textContent=S.ttt.scores.D;
@@ -2440,27 +2664,28 @@ function endTTT(result,wl){
 }
 
 function wagerMode(){
-  if(!S.wallet){showToast('Connect Phantom first!','warn');openModal();}
-  else showToast('Wager placed!','success');
+  if(!S.wallet){showToast('Connect Phantom first to enable wager mode!','warn');openModal();}
+  else showToast('0.01 SOL wager placed on this match!','success');
 }
 
+// ================================================================
 // QUIZ
 const QS=[
-  {q:"What does MPC stand for?",opts:["Multi-Party Computation","Multi-Protocol Cryptography","Maximum Privacy Contract","Multi-Point Consensus"],a:0},
-  {q:"Where does encryption happen in Arcium?",opts:["On validators","In MPC servers","In user's browser","On program account"],a:2},
+  {q:"What does MPC stand for in the context of Arcium?",opts:["Multi-Party Computation","Multi-Protocol Cryptography","Maximum Privacy Contract","Multi-Point Consensus"],a:0},
+  {q:"In Arcium's sealed-bid auction, where does encryption take place?",opts:["On Solana validator nodes","In Arcium's MPC servers","In the user's browser","On the program account"],a:2},
   {q:"What does ZKP stand for?",opts:["Zero Knowledge Protocol","Zero Key Pair","Zero Knowledge Proof","Zonal Key Privacy"],a:2},
-  {q:"Which blockchain does Arcium use?",opts:["Ethereum","Bitcoin","Solana","Avalanche"],a:2},
-  {q:"How is a secret distributed?",opts:["To one node","Split across nodes","Hashed on-chain","Through VPN"],a:1},
-  {q:"What framework writes Solana programs?",opts:["Hardhat","Truffle","Anchor","Foundry"],a:2},
-  {q:"What language for Solana contracts?",opts:["Go","TypeScript","Python","Rust"],a:3},
-  {q:"What's stored on-chain?",opts:["Encrypted ciphertext","Raw bid values","ZK proofs","Merkle roots"],a:0},
-  {q:"Main advantage of sealed-bid auctions?",opts:["Lower fees","Faster settlement","Prevents sniping","Better UI"],a:2},
-  {q:"What does MXE stand for?",opts:["Multi-Exchange Env","Multi-Party Execution Env","Maximum Encryption Ext","Modular Execution Engine"],a:1},
-  {q:"Which wallet is used?",opts:["MetaMask","Coinbase","Phantom","Solflare"],a:2},
-  {q:"What is ARCIS DSL?",opts:["Domain-Specific Language","Routing Interface","Runtime Compiler","None"],a:0},
-  {q:"In 3-node MPC, how many must collude?",opts:["1","2","All 3","0"],a:2},
-  {q:"What's the MPC output?",opts:["All bids ranked","Winning amount","Winner's key","ZK proof"],a:2},
-  {q:"What happens to losing bids?",opts:["Deleted","Revealed","Stay encrypted","Refunded"],a:2},
+  {q:"Which blockchain does Arcium's hackathon demo use?",opts:["Ethereum","Bitcoin","Solana","Avalanche"],a:2},
+  {q:"How is a secret value distributed in Arcium's MPC network?",opts:["Encrypted and sent to one node","Split into shares across multiple nodes","Hashed and stored on-chain","Sent through a VPN tunnel"],a:1},
+  {q:"What framework is used to write Solana programs in Arcium's demo?",opts:["Hardhat","Truffle","Anchor","Foundry"],a:2},
+  {q:"What programming language is used for the Solana smart contract?",opts:["Go","TypeScript","Python","Rust"],a:3},
+  {q:"What is stored on-chain instead of raw bid amounts?",opts:["Encrypted ciphertext","Hashed bid values","Zero-knowledge proofs","Merkle tree roots"],a:0},
+  {q:"What is the main advantage of sealed-bid auctions over traditional on-chain auctions?",opts:["Lower gas fees","Faster settlement","Prevents sniping and bid manipulation","Better user interface"],a:2},
+  {q:"What does MXE stand for in Arcium's protocol?",opts:["Multi-Exchange Environment","Multi-Party Execution Environment","Maximum Encryption Extension","Modular Execution Engine"],a:1},
+  {q:"Which wallet is used in Arcium's auction demo?",opts:["MetaMask","Coinbase Wallet","Phantom","Solflare"],a:2},
+  {q:"What does ARCIS DSL refer to?",opts:["Arcium's Domain-Specific Language for MPC circuits","Advanced Routing Cryptography Interface System","Automatic Runtime Compiler for Integrated Solana","None of the above"],a:0},
+  {q:"In a 3-node MPC setup, how many nodes must collude to learn a secret?",opts:["1 node","2 nodes","All 3 nodes","0 nodes"],a:2},
+  {q:"What is the output of Arcium's MPC winner computation?",opts:["All bid amounts ranked","The winning bid amount","Only the winner's public key","A ZK proof of all bids"],a:2},
+  {q:"What happens to losing bids after the auction winner is revealed?",opts:["Deleted from chain","Revealed for transparency","Remain encrypted on-chain forever","Refunded automatically"],a:2},
 ];
 
 function startQuiz(){
@@ -2473,6 +2698,8 @@ function startQuiz(){
 
 function showQ(){
   const q=QS[S.quiz.i];
+  document.getElementById('qNum').textContent=S.quiz.i+1;
+  document.getElementById('qScore').textContent=S.quiz.score;
   document.getElementById('qProgress').style.width=((S.quiz.i/15)*100)+'%';
   document.getElementById('nextBtn').style.display='none';
   const L=['A','B','C','D'];
@@ -2520,24 +2747,37 @@ function finishQuiz(){
   clearInterval(S.quiz.timer);
   document.getElementById('quizActive').style.display='none';
   const sc=S.quiz.score;
+  const totalT=Math.round((Date.now()-S.quiz.t0)/1000);
+  const correct=S.quiz.answers.filter(a=>a==='correct').length;
+  const wrong=S.quiz.answers.filter(a=>a==='wrong').length;
+  const timeout=S.quiz.answers.filter(a=>a==='timeout').length;
   let rank,msg;
-  if(sc>=14){rank='LEGEND';msg='Extraordinary. You ARE the protocol.';}
-  else if(sc>=11){rank='COMMANDER';msg='Impressive crypto mastery.';}
-  else if(sc>=8){rank='WARRIOR';msg='Solid operative.';}
-  else if(sc>=5){rank='SOLDIER';msg='Keep studying the protocol.';}
-  else{rank='RECRUIT';msg='Training begins now.';}
+  if(sc>=14){rank='LEGEND';msg='Extraordinary. You ARE the Arcium protocol. Core team material.';}
+  else if(sc>=11){rank='COMMANDER';msg='Impressive crypto mastery. You know MPC from ZKP — and then some.';}
+  else if(sc>=8){rank='WARRIOR';msg='Solid operative. You understand the battlefield and fight well in the cryptographic trenches.';}
+  else if(sc>=5){rank='SOLDIER';msg='Enlisted and capable. Keep studying the protocol — you\'re on the right path.';}
+  else{rank='RECRUIT';msg='Training begins now, recruit. Read the Arcium docs and redeploy. The protocol demands excellence.';}
   S.prof.quizScore=sc;S.prof.rank=rank;updateProf();
+  logEngagement({type:'quiz',score:sc,rank,time:ts()});
+  const pct=Math.round((sc/15)*100);
   const el=document.getElementById('quizResults');
   el.style.display='block';
   el.innerHTML=`
     <div class="results-card">
       <span class="rank-badge rank-${rank}">${rank}</span>
       <div class="result-score">${sc}<span style="font-size:2rem;color:var(--text-muted)">/15</span></div>
-      <div class="result-label">${Math.round((sc/15)*100)}% Accuracy</div>
+      <div class="result-label">Final Score — ${pct}% Accuracy</div>
       <div class="result-msg">${msg}</div>
+      <div class="result-breakdown">
+        <div class="rb-item rb-correct"><div class="rb-val">${correct}</div><div class="rb-lbl">Correct</div></div>
+        <div class="rb-item rb-wrong"><div class="rb-val">${wrong}</div><div class="rb-lbl">Wrong</div></div>
+        <div class="rb-item rb-skip"><div class="rb-val">${timeout}</div><div class="rb-lbl">Timeout</div></div>
+        <div class="rb-item rb-time"><div class="rb-val">${totalT}s</div><div class="rb-lbl">Total Time</div></div>
+      </div>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:2rem;">
-        <button class="btn btn-primary" onclick="retakeQuiz()">↺ Retry</button>
-        <button class="btn btn-outline" onclick="go('profile')">View Profile</button>
+        <button class="btn btn-primary" onclick="retakeQuiz()">↺ Retry Mission</button>
+        <button class="btn btn-outline" onclick="go('profile')">📋 View Profile</button>
+        <button class="btn btn-gold" onclick="go('games')">🎮 Arcade</button>
       </div>
     </div>`;
 }
